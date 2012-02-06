@@ -1,0 +1,13 @@
+#
+# This file is part of project GEOS (http://trac.osgeo.org/geos/) 
+#
+SUBDIRS = 
+
+EXTRA_DIST = 
+
+geosdir = $(includedir)/geos/triangulate/quadedge
+
+geos_HEADERS = \
+    Vertex.h \
+	TrianglePredicate.h
+    #QuadEdge.h 
