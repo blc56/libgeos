@@ -58,15 +58,15 @@ public:
    * @return true if this point is inside the circle defined by the points a, b, c
    */
   static bool isInCircleNonRobust(
-      const Coordinate &a, const Coordinate &b, const Coordinate &c, 
-      const Coordinate &p) {
-    bool isInCircle = 
-              (a.x * a.x + a.y * a.y) * triArea(b, c, p)
-            - (b.x * b.x + b.y * b.y) * triArea(a, c, p)
-            + (c.x * c.x + c.y * c.y) * triArea(a, b, p)
-            - (p.x * p.x + p.y * p.y) * triArea(a, b, c) 
-            > 0;
-    return isInCircle;
+	  const Coordinate &a, const Coordinate &b, const Coordinate &c, 
+	  const Coordinate &p) {
+	bool isInCircle = 
+			  (a.x * a.x + a.y * a.y) * triArea(b, c, p)
+			- (b.x * b.x + b.y * b.y) * triArea(a, c, p)
+			+ (c.x * c.x + c.y * c.y) * triArea(a, b, p)
+			- (p.x * p.x + p.y * p.y) * triArea(a, b, c) 
+			> 0;
+	return isInCircle;
   }
   
   /**
@@ -87,24 +87,24 @@ public:
    * @return true if this point is inside the circle defined by the points a, b, c
    */
   static bool isInCircleNormalized(
-      const Coordinate &a, const Coordinate &b, const Coordinate &c, 
-      const Coordinate &p) {
-    double adx = a.x - p.x;
-    double ady = a.y - p.y;
-    double bdx = b.x - p.x;
-    double bdy = b.y - p.y;
-    double cdx = c.x - p.x;
-    double cdy = c.y - p.y;
+	  const Coordinate &a, const Coordinate &b, const Coordinate &c, 
+	  const Coordinate &p) {
+	double adx = a.x - p.x;
+	double ady = a.y - p.y;
+	double bdx = b.x - p.x;
+	double bdy = b.y - p.y;
+	double cdx = c.x - p.x;
+	double cdy = c.y - p.y;
 
-    double abdet = adx * bdy - bdx * ady;
-    double bcdet = bdx * cdy - cdx * bdy;
-    double cadet = cdx * ady - adx * cdy;
-    double alift = adx * adx + ady * ady;
-    double blift = bdx * bdx + bdy * bdy;
-    double clift = cdx * cdx + cdy * cdy;
+	double abdet = adx * bdy - bdx * ady;
+	double bcdet = bdx * cdy - cdx * bdy;
+	double cadet = cdx * ady - adx * cdy;
+	double alift = adx * adx + ady * ady;
+	double blift = bdx * bdx + bdy * bdy;
+	double clift = cdx * cdx + cdy * cdy;
 
-    double disc = alift * bcdet + blift * cadet + clift * abdet;
-    return disc > 0;
+	double disc = alift * bcdet + blift * cadet + clift * abdet;
+	return disc > 0;
   }
 private: 
   /**
@@ -116,9 +116,9 @@ private:
    * @param c a vertex of the triangle
    */
   static double triArea(const Coordinate &a,
-          const Coordinate &b, const Coordinate &c) {
-      return (b.x - a.x) * (c.y - a.y) 
-           - (b.y - a.y) * (c.x - a.x);
+		  const Coordinate &b, const Coordinate &c) {
+	  return (b.x - a.x) * (c.y - a.y) 
+		   - (b.y - a.y) * (c.x - a.x);
   }
 
 public:
@@ -134,12 +134,12 @@ public:
    * @return true if this point is inside the circle defined by the points a, b, c
    */
   static bool isInCircleRobust(
-      const Coordinate &a, const Coordinate &b, const Coordinate &c, 
-      const Coordinate &p) 
+	  const Coordinate &a, const Coordinate &b, const Coordinate &c, 
+	  const Coordinate &p) 
   {
-    //checkRobustInCircle(a, b, c, p);
-//    return isInCircleNonRobust(a, b, c, p);       
-    return isInCircleNormalized(a, b, c, p);       
+	//checkRobustInCircle(a, b, c, p);
+//	return isInCircleNonRobust(a, b, c, p);	   
+	return isInCircleNormalized(a, b, c, p);	   
   }
 
   /**
@@ -154,30 +154,30 @@ public:
    * @return true if this point is inside the circle defined by the points a, b, c
    */
   //public static bool isInCircleDDSlow(
-      //Coordinate a, Coordinate b, Coordinate c,
-      //Coordinate p) {
-    //DD px = DD.valueOf(p.x);
-    //DD py = DD.valueOf(p.y);
-    //DD ax = DD.valueOf(a.x);
-    //DD ay = DD.valueOf(a.y);
-    //DD bx = DD.valueOf(b.x);
-    //DD by = DD.valueOf(b.y);
-    //DD cx = DD.valueOf(c.x);
-    //DD cy = DD.valueOf(c.y);
+	  //Coordinate a, Coordinate b, Coordinate c,
+	  //Coordinate p) {
+	//DD px = DD.valueOf(p.x);
+	//DD py = DD.valueOf(p.y);
+	//DD ax = DD.valueOf(a.x);
+	//DD ay = DD.valueOf(a.y);
+	//DD bx = DD.valueOf(b.x);
+	//DD by = DD.valueOf(b.y);
+	//DD cx = DD.valueOf(c.x);
+	//DD cy = DD.valueOf(c.y);
 
-    //DD aTerm = (ax.multiply(ax).add(ay.multiply(ay)))
-        //.multiply(triAreaDDSlow(bx, by, cx, cy, px, py));
-    //DD bTerm = (bx.multiply(bx).add(by.multiply(by)))
-        //.multiply(triAreaDDSlow(ax, ay, cx, cy, px, py));
-    //DD cTerm = (cx.multiply(cx).add(cy.multiply(cy)))
-        //.multiply(triAreaDDSlow(ax, ay, bx, by, px, py));
-    //DD pTerm = (px.multiply(px).add(py.multiply(py)))
-        //.multiply(triAreaDDSlow(ax, ay, bx, by, cx, cy));
+	//DD aTerm = (ax.multiply(ax).add(ay.multiply(ay)))
+		//.multiply(triAreaDDSlow(bx, by, cx, cy, px, py));
+	//DD bTerm = (bx.multiply(bx).add(by.multiply(by)))
+		//.multiply(triAreaDDSlow(ax, ay, cx, cy, px, py));
+	//DD cTerm = (cx.multiply(cx).add(cy.multiply(cy)))
+		//.multiply(triAreaDDSlow(ax, ay, bx, by, px, py));
+	//DD pTerm = (px.multiply(px).add(py.multiply(py)))
+		//.multiply(triAreaDDSlow(ax, ay, bx, by, cx, cy));
 
-    //DD sum = aTerm.subtract(bTerm).add(cTerm).subtract(pTerm);
-    //bool isInCircle = sum.doubleValue() > 0;
+	//DD sum = aTerm.subtract(bTerm).add(cTerm).subtract(pTerm);
+	//bool isInCircle = sum.doubleValue() > 0;
 
-    //return isInCircle;
+	//return isInCircle;
   //}
 
   /**
@@ -193,67 +193,67 @@ public:
    * @param cy the y ordinate of a vertex of the triangle
    */
   //public static DD triAreaDDSlow(DD ax, DD ay,
-      //DD bx, DD by, DD cx, DD cy) {
-    //return (bx.subtract(ax).multiply(cy.subtract(ay)).subtract(by.subtract(ay)
-        //.multiply(cx.subtract(ax))));
+	  //DD bx, DD by, DD cx, DD cy) {
+	//return (bx.subtract(ax).multiply(cy.subtract(ay)).subtract(by.subtract(ay)
+		//.multiply(cx.subtract(ax))));
   //}
 
   //public static bool isInCircleDDFast(
-      //Coordinate a, Coordinate b, Coordinate c,
-      //Coordinate p) {
-    //DD aTerm = (DD.sqr(a.x).selfAdd(DD.sqr(a.y)))
-        //.selfMultiply(triAreaDDFast(b, c, p));
-    //DD bTerm = (DD.sqr(b.x).selfAdd(DD.sqr(b.y)))
-        //.selfMultiply(triAreaDDFast(a, c, p));
-    //DD cTerm = (DD.sqr(c.x).selfAdd(DD.sqr(c.y)))
-        //.selfMultiply(triAreaDDFast(a, b, p));
-    //DD pTerm = (DD.sqr(p.x).selfAdd(DD.sqr(p.y)))
-        //.selfMultiply(triAreaDDFast(a, b, c));
+	  //Coordinate a, Coordinate b, Coordinate c,
+	  //Coordinate p) {
+	//DD aTerm = (DD.sqr(a.x).selfAdd(DD.sqr(a.y)))
+		//.selfMultiply(triAreaDDFast(b, c, p));
+	//DD bTerm = (DD.sqr(b.x).selfAdd(DD.sqr(b.y)))
+		//.selfMultiply(triAreaDDFast(a, c, p));
+	//DD cTerm = (DD.sqr(c.x).selfAdd(DD.sqr(c.y)))
+		//.selfMultiply(triAreaDDFast(a, b, p));
+	//DD pTerm = (DD.sqr(p.x).selfAdd(DD.sqr(p.y)))
+		//.selfMultiply(triAreaDDFast(a, b, c));
 
-    //DD sum = aTerm.selfSubtract(bTerm).selfAdd(cTerm).selfSubtract(pTerm);
-    //bool isInCircle = sum.doubleValue() > 0;
+	//DD sum = aTerm.selfSubtract(bTerm).selfAdd(cTerm).selfSubtract(pTerm);
+	//bool isInCircle = sum.doubleValue() > 0;
 
-    //return isInCircle;
+	//return isInCircle;
   //}
 
   //public static DD triAreaDDFast(
-      //Coordinate a, Coordinate b, Coordinate c) {
-    
-    //DD t1 = DD.valueOf(b.x).selfSubtract(a.x)
-          //.selfMultiply(
-              //DD.valueOf(c.y).selfSubtract(a.y));
-    
-    //DD t2 = DD.valueOf(b.y).selfSubtract(a.y)
-          //.selfMultiply(
-              //DD.valueOf(c.x).selfSubtract(a.x));
-    
-    //return t1.selfSubtract(t2);
+	  //Coordinate a, Coordinate b, Coordinate c) {
+	
+	//DD t1 = DD.valueOf(b.x).selfSubtract(a.x)
+		  //.selfMultiply(
+			  //DD.valueOf(c.y).selfSubtract(a.y));
+	
+	//DD t2 = DD.valueOf(b.y).selfSubtract(a.y)
+		  //.selfMultiply(
+			  //DD.valueOf(c.x).selfSubtract(a.x));
+	
+	//return t1.selfSubtract(t2);
   //}
 
   //public static bool isInCircleDDNormalized(
-      //Coordinate a, Coordinate b, Coordinate c,
-      //Coordinate p) {
-    //DD adx = DD.valueOf(a.x).selfSubtract(p.x);
-    //DD ady = DD.valueOf(a.y).selfSubtract(p.y);
-    //DD bdx = DD.valueOf(b.x).selfSubtract(p.x);
-    //DD bdy = DD.valueOf(b.y).selfSubtract(p.y);
-    //DD cdx = DD.valueOf(c.x).selfSubtract(p.x);
-    //DD cdy = DD.valueOf(c.y).selfSubtract(p.y);
+	  //Coordinate a, Coordinate b, Coordinate c,
+	  //Coordinate p) {
+	//DD adx = DD.valueOf(a.x).selfSubtract(p.x);
+	//DD ady = DD.valueOf(a.y).selfSubtract(p.y);
+	//DD bdx = DD.valueOf(b.x).selfSubtract(p.x);
+	//DD bdy = DD.valueOf(b.y).selfSubtract(p.y);
+	//DD cdx = DD.valueOf(c.x).selfSubtract(p.x);
+	//DD cdy = DD.valueOf(c.y).selfSubtract(p.y);
 
-    //DD abdet = adx.multiply(bdy).selfSubtract(bdx.multiply(ady));
-    //DD bcdet = bdx.multiply(cdy).selfSubtract(cdx.multiply(bdy));
-    //DD cadet = cdx.multiply(ady).selfSubtract(adx.multiply(cdy));
-    //DD alift = adx.multiply(adx).selfAdd(ady.multiply(ady));
-    //DD blift = bdx.multiply(bdx).selfAdd(bdy.multiply(bdy));
-    //DD clift = cdx.multiply(cdx).selfAdd(cdy.multiply(cdy));
+	//DD abdet = adx.multiply(bdy).selfSubtract(bdx.multiply(ady));
+	//DD bcdet = bdx.multiply(cdy).selfSubtract(cdx.multiply(bdy));
+	//DD cadet = cdx.multiply(ady).selfSubtract(adx.multiply(cdy));
+	//DD alift = adx.multiply(adx).selfAdd(ady.multiply(ady));
+	//DD blift = bdx.multiply(bdx).selfAdd(bdy.multiply(bdy));
+	//DD clift = cdx.multiply(cdx).selfAdd(cdy.multiply(cdy));
 
-    //DD sum = alift.selfMultiply(bcdet)
-    //.selfAdd(blift.selfMultiply(cadet))
-    //.selfAdd(clift.selfMultiply(abdet));
-    
-    //bool isInCircle = sum.doubleValue() > 0;
+	//DD sum = alift.selfMultiply(bcdet)
+	//.selfAdd(blift.selfMultiply(cadet))
+	//.selfAdd(clift.selfMultiply(abdet));
+	
+	//bool isInCircle = sum.doubleValue() > 0;
 
-    //return isInCircle;
+	//return isInCircle;
   //}
 
   /**
@@ -277,11 +277,11 @@ public:
    * @return true if this point is inside the circle defined by the points a, b, c
    */
   //static bool isInCircleCC(const Coordinate &a, const Coordinate &b,
-        //const Coordinate &c, const Coordinate &p) {
-    //Coordinate cc = Triangle.circumcentre(a, b, c);
-    //double ccRadius = a.distance(cc);
-    //double pRadiusDiff = p.distance(cc) - ccRadius;
-    //return pRadiusDiff <= 0;
+		//const Coordinate &c, const Coordinate &p) {
+	//Coordinate cc = Triangle.circumcentre(a, b, c);
+	//double ccRadius = a.distance(cc);
+	//double pRadiusDiff = p.distance(cc) - ccRadius;
+	//return pRadiusDiff <= 0;
   //}
   
   /**
@@ -294,7 +294,7 @@ public:
    * @param p the point to test
    */
 //private static void checkRobustInCircle(Coordinate a, Coordinate b, Coordinate c,
-    //Coordinate p) 
+	//Coordinate p) 
 //{
   //bool nonRobustInCircle = isInCircleNonRobust(a, b, c, p);
   //bool isInCircleDD = TrianglePredicate.isInCircleDDSlow(a, b, c, p);
@@ -302,25 +302,25 @@ public:
 
   //Coordinate circumCentre = Triangle.circumcentre(a, b, c);
   //System.out.println("p radius diff a = "
-      //+ Math.abs(p.distance(circumCentre) - a.distance(circumCentre))
-      /// a.distance(circumCentre));
+	  //+ Math.abs(p.distance(circumCentre) - a.distance(circumCentre))
+	  /// a.distance(circumCentre));
 
   //if (nonRobustInCircle != isInCircleDD || nonRobustInCircle != isInCircleCC) {
-    //System.out.println("inCircle robustness failure (double result = "
-        //+ nonRobustInCircle 
-        //+ ", DD result = " + isInCircleDD
-        //+ ", CC result = " + isInCircleCC + ")");
-    //System.out.println(WKTWriter.toLineString(new CoordinateArraySequence(
-        //new Coordinate[] { a, b, c, p })));
-    //System.out.println("Circumcentre = " + WKTWriter.toPoint(circumCentre)
-        //+ " radius = " + a.distance(circumCentre));
-    //System.out.println("p radius diff a = "
-        //+ Math.abs(p.distance(circumCentre)/a.distance(circumCentre) - 1));
-    //System.out.println("p radius diff b = "
-        //+ Math.abs(p.distance(circumCentre)/b.distance(circumCentre) - 1));
-    //System.out.println("p radius diff c = "
-        //+ Math.abs(p.distance(circumCentre)/c.distance(circumCentre) - 1));
-    //System.out.println();
+	//System.out.println("inCircle robustness failure (double result = "
+		//+ nonRobustInCircle 
+		//+ ", DD result = " + isInCircleDD
+		//+ ", CC result = " + isInCircleCC + ")");
+	//System.out.println(WKTWriter.toLineString(new CoordinateArraySequence(
+		//new Coordinate[] { a, b, c, p })));
+	//System.out.println("Circumcentre = " + WKTWriter.toPoint(circumCentre)
+		//+ " radius = " + a.distance(circumCentre));
+	//System.out.println("p radius diff a = "
+		//+ Math.abs(p.distance(circumCentre)/a.distance(circumCentre) - 1));
+	//System.out.println("p radius diff b = "
+		//+ Math.abs(p.distance(circumCentre)/b.distance(circumCentre) - 1));
+	//System.out.println("p radius diff c = "
+		//+ Math.abs(p.distance(circumCentre)/c.distance(circumCentre) - 1));
+	//System.out.println();
   //}
 //}
 

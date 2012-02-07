@@ -8,6 +8,6 @@ EXTRA_DIST =
 geosdir = $(includedir)/geos/triangulate/quadedge
 
 geos_HEADERS = \
+    QuadEdge.h \
     Vertex.h \
 	TrianglePredicate.h
-    #QuadEdge.h 

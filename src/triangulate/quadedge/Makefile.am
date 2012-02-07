@@ -8,6 +8,7 @@ noinst_LTLIBRARIES = libquadedge.la
 INCLUDES = -I$(top_srcdir)/include 
 
 libquadedge_la_SOURCES = \
+	QuadEdge.cpp \ 
 	Vertex.cpp \ 
 	TrianglePredicate.cpp
 
