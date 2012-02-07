@@ -99,6 +99,7 @@ geos_unit_SOURCES = \
 	precision/SimpleGeometryPrecisionReducerTest.cpp \
 	simplify/DouglasPeuckerSimplifierTest.cpp \
 	simplify/TopologyPreservingSimplifierTest.cpp \
+	triangulate/quadedge/QuadEdgeTest.cpp \
 	util/UniqueCoordinateArrayFilterTest.cpp \
 	capi/GEOSCoordSeqTest.cpp \
 	capi/GEOSGeomFromWKBTest.cpp \
