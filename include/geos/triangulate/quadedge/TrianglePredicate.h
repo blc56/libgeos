@@ -19,9 +19,6 @@
 #ifndef GEOS_TRIANGULATE_QUADEDGE_TRIANGLEPREDICATE_H
 #define GEOS_TRIANGULATE_QUADEDGE_TRIANGLEPREDICATE_H
 
-//import com.vividsolutions.jts.io.WKTWriter;
-//import com.vividsolutions.jts.math.DD;
-
 #include <geos/geom/Coordinate.h>
 #include <geos/geom/Triangle.h>
 #include <geos/geom/CoordinateArraySequence.h>
@@ -39,7 +36,8 @@ namespace geom { // geos.geom
  * some algorithms are provided, which utilize
  * normalization to the origin.
  * 
- * @author Martin Davis
+ * @author JTS: Martin Davis
+ * @author Benjamin Campbell
  *
  */
 class TrianglePredicate 

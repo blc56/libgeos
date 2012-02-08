@@ -19,6 +19,11 @@
 #ifndef GEOS_TRIANGULATE_QUADEDGE_QUADEDGE_H
 #define GEOS_TRIANGULATE_QUADEDGE_QUADEDGE_H
 
+//TODO: XXX: FIXME: BLC: QuadEdge Memory managment and valgrind!!
+// ref counting???
+//TODO: XXX: FIXME: BLC: Move function defs to .cpp files!!
+//TODO: XXX: FIXME: BLC: Don't put 'using' in header files!!
+
 #include <geos/triangulate/quadedge/Vertex.h>
 #include <geos/geom/LineSegment.h>
 
@@ -44,6 +49,8 @@ namespace quadedge { //geos.triangulate.quadedge
  * The edge class does not contain separate information for vertice or faces; a vertex is implicitly
  * defined as a ring of edges (created using the <tt>next</tt> field).
  * 
+ * @author JTS: David Skea
+ * @author JTS: Martin Davis
  * @author Benjamin Campbell
  * */
 class GEOS_DLL QuadEdge {
@@ -55,29 +62,31 @@ public:
 	 *		  the origin Vertex
 	 * @param d
 	 *		  the destination Vertex
-	 * @param q0, q1, q2, q3
-	 *		  QuadEdge**'s filled with the new QuadEdges
+	 * @return the new QuadEdge* The caller is reponsible for
+	 * freeing the returned pointer
 	 */
-	static void makeEdge(const Vertex &o, const Vertex &d,
-		QuadEdge **q0, QuadEdge **q1, QuadEdge **q2, QuadEdge **q3) {
-		*q0 = new QuadEdge();
-		*q1 = new QuadEdge();
-		*q2 = new QuadEdge();
-		*q3 = new QuadEdge();
+	static QuadEdge* makeEdge(const Vertex &o, const Vertex &d) {
+		QuadEdge *q0 = new QuadEdge();
+		//q1-q3 are free()'d by q0
+		QuadEdge *q1 = new QuadEdge();
+		QuadEdge *q2 = new QuadEdge();
+		QuadEdge *q3 = new QuadEdge();
 
-		(*q0)->_rot = *q1;
-		(*q1)->_rot = *q2;
-		(*q2)->_rot = *q3;
-		(*q3)->_rot = *q0;
+		q0->_rot = q1;
+		q1->_rot = q2;
+		q2->_rot = q3;
+		q3->_rot = q0;
 
-		(*q0)->setNext(*q0);
-		(*q1)->setNext(*q3);
-		(*q2)->setNext(*q2);
-		(*q3)->setNext(*q1);
+		q0->setNext(q0);
+		q1->setNext(q3);
+		q2->setNext(q2);
+		q3->setNext(q1);
 
-		QuadEdge *base = *q0;
+		QuadEdge *base = q0;
 		base->setOrig(o);
 		base->setDest(d);
+
+		return base;
 	}
 
 	/**
@@ -86,14 +95,14 @@ public:
 	 * connection is complete. Additionally, the data pointers of the new edge
 	 * are set.
 	 *
-	 * @param q0, q1, q2, q3
-	 *		  QuadEdge**'s filled with the new QuadEdges
+	 * @return the new QuadEdge* The caller is reponsible for
+	 * freeing the returned pointer
 	 */
-	static void connect(QuadEdge &a, QuadEdge &b,
-		QuadEdge **q0, QuadEdge **q1, QuadEdge **q2, QuadEdge **q3) {
-		makeEdge(a.dest(), b.orig(), q0, q1, q2, q3);
-		splice((**q0), *a.lNext());
-		splice(*(*q0)->sym(), b);
+	static QuadEdge* connect(QuadEdge &a, QuadEdge &b) {
+		QuadEdge *q0 = makeEdge(a.dest(), b.orig());
+		splice(*q0, a.lNext());
+		splice(q0->sym(), b);
+		return q0;
 	}
 
 	/**
@@ -110,18 +119,18 @@ public:
 	 * 
 	 */
 	static void splice(QuadEdge &a, QuadEdge &b) {
-		QuadEdge *alpha = a.oNext()->rot();
-		QuadEdge *beta = b.oNext()->rot();
+		QuadEdge &alpha = a.oNext().rot();
+		QuadEdge &beta = b.oNext().rot();
 
-		QuadEdge* t1 = b.oNext();
-		QuadEdge* t2 = a.oNext();
-		QuadEdge* t3 = beta->oNext();
-		QuadEdge* t4 = alpha->oNext();
+		QuadEdge &t1 = b.oNext();
+		QuadEdge &t2 = a.oNext();
+		QuadEdge &t3 = beta.oNext();
+		QuadEdge &t4 = alpha.oNext();
 
-		a.setNext(t1);
-		b.setNext(t2);
-		alpha->setNext(t3);
-		beta->setNext(t4);
+		a.setNext(&t1);
+		b.setNext(&t2);
+		alpha.setNext(&t3);
+		beta.setNext(&t4);
 	}
 
 	/**
@@ -130,14 +139,14 @@ public:
 	 * @param e the quadedge to turn
 	 */
 	static void swap(QuadEdge &e) {
-		QuadEdge *a = e.oPrev();
-		QuadEdge *b = e.sym()->oPrev();
-		splice(e, *a);
-		splice(*e.sym(), *b);
-		splice(e, *a->lNext());
-		splice(*e.sym(), *b->lNext());
-		e.setOrig(a->dest());
-		e.setDest(b->dest());
+		QuadEdge &a = e.oPrev();
+		QuadEdge &b = e.sym().oPrev();
+		splice(e, a);
+		splice(e.sym(), b);
+		splice(e, a.lNext());
+		splice(e.sym(), b.lNext());
+		e.setOrig(a.dest());
+		e.setDest(b.dest());
 	}
 
 private:
@@ -146,15 +155,45 @@ private:
 	Vertex   vertex;			// The vertex that this edge represents
 	QuadEdge *next;			  // A reference to a connected edge
 	void*   data;
+	bool isAlive;
 
 	/**
 	 * Quadedges must be made using {@link makeEdge}, 
 	 * to ensure proper construction.
 	 */
-	QuadEdge() : _rot(NULL), vertex(), next(NULL), data(NULL)
+	QuadEdge() : _rot(NULL), vertex(), next(NULL), data(NULL), isAlive(true)
 	{ }
 
 public:
+	~QuadEdge()
+	{
+	}
+
+	/**
+	 * Free the QuadEdge quartet associated with this QuadEdge by a connect()
+	 * or makeEdge() call.
+	 * DO NOT call this function on a QuadEdge that was not returned
+	 * by connect() or makeEdge() as it will cause double free's.
+	 */
+	virtual void free()
+	{
+		if(_rot)
+		{
+			if(_rot->_rot)
+			{
+				if(_rot->_rot->_rot)
+				{
+					delete _rot->_rot->_rot;
+					_rot->_rot->_rot = NULL;
+				}
+				delete _rot->_rot;
+				_rot->_rot = NULL;
+			}
+			delete _rot;
+			_rot = NULL;
+		}
+	}
+
 	/**
 	 * Gets the primary edge of this quadedge and its <tt>sym</tt>.
 	 * The primary edge is the one for which the origin
@@ -163,10 +202,10 @@ public:
 	 * 
 	 * @return the primary quadedge
 	 */
-	const QuadEdge* getPrimary() const
+	const QuadEdge& getPrimary() const
 	{
 		if (orig().getCoordinate().compareTo(dest().getCoordinate()) <= 0)
-			return this;
+			return *this;
 		else 
 			return sym();
 	}
@@ -185,7 +224,7 @@ public:
 	 * 
 	 * @return the data object
 	 */
-	virtual void * getData() {
+	virtual void* getData() {
 		return data;
 	}
 
@@ -193,12 +232,15 @@ public:
 	 * Marks this quadedge as being deleted.
 	 * This does not free the memory used by
 	 * this quadedge quartet, but indicates
-	 * that this edge no longer participates
+	 * that this quadedge quartet no longer participates
 	 * in a subdivision.
 	 *
 	 */
 	virtual void remove() {
-	  _rot = NULL;
+		rot().rot().rot().isAlive = false;
+		rot().rot().isAlive = false;
+		rot().isAlive = false;
+		isAlive = false;
 	}
 	
 	/**
@@ -207,7 +249,7 @@ public:
 	 * @return true if this edge has not been deleted.
 	 */
 	virtual bool isLive() {
-	  return _rot != NULL;
+		return isAlive;
 	}
 
 
@@ -230,8 +272,8 @@ public:
 	 * 
 	 * @return the rotated edge
 	 */
-	 QuadEdge* rot() const {
-	  return _rot;
+	 QuadEdge& rot() const {
+	  return *_rot;
 	}
 
 	/**
@@ -239,8 +281,8 @@ public:
 	 * 
 	 * @return the inverse rotated edge.
 	 */
-	QuadEdge* invRot() const  {
-	  return rot()->sym();
+	QuadEdge& invRot() const  {
+	  return rot().sym();
 	}
 
 	/**
@@ -248,8 +290,8 @@ public:
 	 * 
 	 * @return the sym of the edge
 	 */
-	QuadEdge* sym() const {
-	  return rot()->rot();
+	QuadEdge& sym() const {
+	  return rot().rot();
 	}
 
 	/**
@@ -257,8 +299,8 @@ public:
 	 * 
 	 * @return the next linked edge.
 	 */
-	QuadEdge* oNext() const {
-		return next;
+	QuadEdge& oNext() const {
+		return *next;
 	}
 
 	/**
@@ -266,8 +308,8 @@ public:
 	 * 
 	 * @return the previous edge.
 	 */
-	QuadEdge* oPrev() const {
-		return rot()->next->rot();
+	QuadEdge& oPrev() const {
+		return rot().oNext().rot();
 	}
 
 	/**
@@ -275,8 +317,8 @@ public:
 	 * 
 	 * @return the next destination edge.
 	 */
-	QuadEdge* dNext() const {
-		return sym()->oNext()->sym();
+	QuadEdge& dNext() const {
+		return sym().oNext().sym();
 	}
 
 	/**
@@ -284,8 +326,8 @@ public:
 	 * 
 	 * @return the previous destination edge.
 	 */
-	QuadEdge* dPrev() const {
-		return invRot()->oNext()->invRot();
+	QuadEdge& dPrev() const {
+		return invRot().oNext().invRot();
 	}
 
 	/**
@@ -293,8 +335,8 @@ public:
 	 * 
 	 * @return the next left face edge.
 	 */
-	QuadEdge* lNext() const {
-		return invRot()->oNext()->rot();
+	QuadEdge& lNext() const {
+		return invRot().oNext().rot();
 	}
 
 	/**
@@ -302,8 +344,8 @@ public:
 	 * 
 	 * @return the previous left face edge.
 	 */
-	QuadEdge* lPrev() const {
-		return next->sym();
+	QuadEdge& lPrev() const {
+		return oNext().sym();
 	}
 
 	/**
@@ -311,8 +353,8 @@ public:
 	 * 
 	 * @return the next right face edge.
 	 */
-	QuadEdge* rNext() {
-		return rot()->next->invRot();
+	QuadEdge& rNext() {
+		return rot().oNext().invRot();
 	}
 
 	/**
@@ -320,8 +362,8 @@ public:
 	 * 
 	 * @return the previous right face edge.
 	 */
-	QuadEdge* rPrev() {
-		return sym()->oNext();
+	QuadEdge& rPrev() {
+		return sym().oNext();
 	}
 
 	/***********************************************************************************************
@@ -342,7 +384,7 @@ public:
 	 * @param d the destination vertex
 	 */
 	virtual void setDest(const Vertex &d) {
-		sym()->setOrig(d);
+		sym().setOrig(d);
 	}
 
 	/**
@@ -360,7 +402,7 @@ public:
 	 * @return the destination vertex
 	 */
 	const Vertex& dest() const {
-		return sym()->orig();
+		return sym().orig();
 	}
 
 	/**
@@ -382,7 +424,7 @@ public:
 	bool equalsNonOriented(const QuadEdge &qe) const {
 		if (equalsOriented(qe))
 			return true;
-		if (equalsOriented(*qe.sym()))
+		if (equalsOriented(qe.sym()))
 			return true;
 		return false;
 	}

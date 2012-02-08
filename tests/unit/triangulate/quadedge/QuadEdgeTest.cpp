@@ -46,14 +46,13 @@ namespace tut
 		Vertex v3(1, 0);
 		Vertex v4(1, 1);
 
-		QuadEdge *q0, *q1, *q2, *q3;
-		QuadEdge *r0, *r1, *r2, *r3;
-		QuadEdge *s0, *s1, *s2, *s3;
+		QuadEdge *q0;
+		QuadEdge *r0;
+		QuadEdge *s0;
 
-		QuadEdge::makeEdge(v1, v2, &q0, &q1, &q2, &q3);
-		QuadEdge::makeEdge(v3, v4, &r0, &r1, &r2, &r3);
-
-		QuadEdge::connect(*q0, *r0, &s0, &s1, &s2, &s3);
+		q0 = QuadEdge::makeEdge(v1, v2);
+		r0 = QuadEdge::makeEdge(v3, v4);
+		s0 = QuadEdge::connect(*q0, *r0);
 
 		//verify properties ensured by connect()
 		//the new edge connects q0->orig() and r0->dest()
@@ -63,9 +62,9 @@ namespace tut
 		ensure(q0->lNext() == s0);
 		ensure(s0->lNext() == r0);
 
-		delete q0; delete q1; delete q2; delete q3;
-		delete r0; delete r1; delete r2; delete r3;
-		delete s0; delete s1; delete s2; delete s3;
+		delete q0; 
+		delete r0; 
+		delete s0; 
 	}
 
 	// 2 - QuadEdge::connect(), causing a loop
@@ -79,14 +78,13 @@ namespace tut
 		Vertex v3(1, 0);
 		Vertex v4(1, 1);
 
-		QuadEdge *q0, *q1, *q2, *q3;
-		QuadEdge *r0, *r1, *r2, *r3;
-		QuadEdge *s0, *s1, *s2, *s3;
+		QuadEdge *q0;
+		QuadEdge *r0;
+		QuadEdge *s0;
 
-		QuadEdge::makeEdge(v1, v2, &q0, &q1, &q2, &q3);
-		QuadEdge::makeEdge(v2, v3, &r0, &r1, &r2, &r3);
-
-		QuadEdge::connect(*q0, *r0, &s0, &s1, &s2, &s3);
+		q0 = QuadEdge::makeEdge(v1, v2);
+		r0 = QuadEdge::makeEdge(v2, v3);
+		s0 = QuadEdge::connect(*q0, *r0);
 
 		//verify properties ensured by connect()
 		//the new edge connects q0->orig() and r0->dest()
@@ -96,9 +94,9 @@ namespace tut
 		ensure(q0->lNext() == s0);
 		ensure(s0->lNext() == r0);
 
-		delete q0; delete q1; delete q2; delete q3;
-		delete r0; delete r1; delete r2; delete r3;
-		delete s0; delete s1; delete s2; delete s3;
+		delete q0; 
+		delete r0; 
+		delete s0; 
 	}
 
 	// 3 - QuadEdge::swap()
@@ -112,17 +110,17 @@ namespace tut
 		Vertex v3(1, 0);
 		Vertex v4(1, 1);
 
-		QuadEdge *q0, *q1, *q2, *q3;
-		QuadEdge *r0, *r1, *r2, *r3;
-		QuadEdge *s0, *s1, *s2, *s3;
-		QuadEdge *t0, *t1, *t2, *t3;
-		QuadEdge *u0, *u1, *u2, *u3;
+		QuadEdge *q0;
+		QuadEdge *r0;
+		QuadEdge *s0;
+		QuadEdge *t0;
+		QuadEdge *u0;
 
 		//make a quadilateral
-		QuadEdge::makeEdge(v1, v2, &q0, &q1, &q2, &q3);
-		QuadEdge::makeEdge(v4, v3, &r0, &r1, &r2, &r3);
-		QuadEdge::connect(*q0, *r0, &s0, &s1, &s2, &s3);
-		QuadEdge::connect(*r0, *q0, &t0, &t1, &t2, &t3);
+		q0 = QuadEdge::makeEdge(v1, v2);
+		r0 = QuadEdge::makeEdge(v4, v3);
+		s0 = QuadEdge::connect(*q0, *r0);
+		t0 = QuadEdge::connect(*r0, *q0);
 
 		//printf("\n=====================\n");
 		//printf("r0->orig(): %f %f\n", r0->orig().getX(), r0->orig().getY());
@@ -131,7 +129,7 @@ namespace tut
 		//printf("s0->dest(): %f %f\n", s0->dest().getX(), s0->dest().getY());
 
 		//add an interior edge to make 2 triangles
-		QuadEdge::connect(*t0, *r0, &u0, &u1, &u2, &u3);
+		u0 = QuadEdge::connect(*t0, *r0);
 		//printf("\n=====================\n");
 		//printf("q0->orig(): %f %f\n", q0->orig().getX(), q0->orig().getY());
 		//printf("q0->dest(): %f %f\n", q0->dest().getX(), q0->dest().getY());
@@ -162,11 +160,16 @@ namespace tut
 		ensure(r0->dest().equals(u0->dest()));
 		ensure(u0->orig().equals(q0->dest()));
 
-		delete q0; delete q1; delete q2; delete q3;
-		delete r0; delete r1; delete r2; delete r3;
-		delete s0; delete s1; delete s2; delete s3;
-		delete t0; delete t1; delete t2; delete t3;
-		delete u0; delete u1; delete u2; delete u3;
+		q0->free();
+		delete q0;
+		r0->free();
+		delete r0;
+		s0->free();
+		delete s0;
+		t0->free();
+		delete t0;
+		u0->free();
+		delete u0;
 	}
 } // namespace tut
 

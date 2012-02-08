@@ -10,6 +10,10 @@ INCLUDES = -I$(top_srcdir)/include
 libquadedge_la_SOURCES = \
 	QuadEdge.cpp \ 
 	Vertex.cpp \ 
-	TrianglePredicate.cpp
+	TrianglePredicate.cpp \
+	QuadEdgeSubdivision.cpp \
+	QuadEdgeLocator.cpp  \
+	LastFoundQuadEdgeLocator.cpp \
+	LocateFailureException.cpp 
 
 libquadedge_la_LIBADD = 

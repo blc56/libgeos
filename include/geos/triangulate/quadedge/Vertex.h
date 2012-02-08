@@ -40,6 +40,25 @@ namespace geos {
 namespace triangulate { //geos.triangulate
 namespace quadedge { //geos.triangulate.quadedge
 
+/**
+ * Models a site (node) in a {@link QuadEdgeSubdivision}. 
+ * The sites can be points on a line string representing a
+ * linear site. 
+ * <p>
+ * The vertex can be considered as a vector with a norm, length, inner product, cross
+ * product, etc. Additionally, point relations (e.g., is a point to the left of a line, the circle
+ * defined by this point and two others, etc.) are also defined in this class.
+ * <p>
+ * It is common to want to attach user-defined data to 
+ * the vertices of a subdivision.  
+ * One way to do this is to subclass <tt>Vertex</tt>
+ * to carry any desired information (see {@link ConstraintVertex}.
+ * 
+ * @author JTS: David Skea
+ * @author JTS: Martin Davis
+ * @author Benjamin Campbell
+ * */
+
 using namespace algorithm;
 using namespace geom;
 
@@ -211,7 +230,7 @@ public:
 	 * @param c a vertex
 	 * @returns true if the triangle is oriented CCW
 	 */
-	virtual bool isCCW(const Vertex &b, const Vertex &c) 
+	bool isCCW(const Vertex &b, const Vertex &c) const 
 	{
 		// is equal to the signed area of the triangle
 
@@ -219,15 +238,8 @@ public:
 			- (b.p.y - p.y) * (c.p.x - p.x) > 0;
 	}
 
-	//TODO:BLC: XXX Implement
-	//bool rightOf(QuadEdge e) {
-		//return isCCW(e.dest(), e.orig());
-	//}
-
-	//TODO:BLC: XXX Implement
-	//final bool leftOf(QuadEdge e) {
-		//return isCCW(e.orig(), e.dest());
-	//}
+	bool rightOf(const QuadEdge &e) const;
+	bool leftOf(const QuadEdge &e) const;
 
 private:
 	static HCoordinate* bisector(const Vertex &a, const Vertex &b) {
