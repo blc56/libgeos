@@ -21,13 +21,20 @@
 
 #include <memory>
 #include <list>
+#include <vector>
+#include <stack>
+#include <set>
 
 #include <geos/geom/Envelope.h>
 #include <geos/geom/LineSegment.h>
+#include <geos/geom/CoordinateList.h>
+#include <geos/geom/GeometryCollection.h>
+#include <geos/geom/GeometryFactory.h>
 #include <geos/util/IllegalArgumentException.h>
 #include <geos/triangulate/quadedge/QuadEdge.h>
 #include <geos/triangulate/quadedge/QuadEdgeLocator.h>
 #include <geos/triangulate/quadedge/LastFoundQuadEdgeLocator.h>
+#include <geos/triangulate/quadedge/TriangleVisitor.h>
 #include <geos/util/GEOSException.h>
 
 namespace geos {
@@ -633,35 +640,38 @@ public:
 	 * Visitors
 	 ****************************************************************************/
 
-	//public void visitTriangles(TriangleVisitor triVisitor,
-			//boolean includeFrame) {
-		//visitedKey++;
+	void visitTriangles(TriangleVisitor *triVisitor,
+			bool includeFrame) {
+		visitedKey++;
 
-		//// visited flag is used to record visited edges of triangles
-		//// setVisitedAll(false);
-		//Stack edgeStack = new Stack();
-		//edgeStack.push(startingEdge);
+		QuadEdgeStack edgeStack;
+		edgeStack.push(startingEdges[0]);
 
-		//Set visitedEdges = new HashSet();
+		QuadEdgeSet visitedEdges;
 		
-		//while (!edgeStack.empty()) {
-			//QuadEdge edge = (QuadEdge) edgeStack.pop();
-			//if (! visitedEdges.contains(edge)) {
-				//QuadEdge[] triEdges = fetchTriangleToVisit(edge, edgeStack,
-						//includeFrame, visitedEdges);
-				//if (triEdges != null)
-					//triVisitor.visit(triEdges);
-			//}
-		//}
-	//}
+		while (!edgeStack.empty()) {
+			QuadEdge *edge = edgeStack.top();
+			edgeStack.pop();
+			if (visitedEdges.find(edge) == visitedEdges.end()) {
+				QuadEdge **triEdges = fetchTriangleToVisit(edge, edgeStack,
+						includeFrame, visitedEdges);
+				if (triEdges != NULL)
+					triVisitor->visit(triEdges);
+			}
+		}
+	}
+
+private:
+	typedef std::stack<QuadEdge*> QuadEdgeStack;
+	typedef std::set<QuadEdge*> QuadEdgeSet;
+	typedef std::list< geom::Coordinate::Vect*> TriList;
 
 	/**
 	 * The quadedges forming a single triangle.
-   * Only one visitor is allowed to be active at a
+     * Only one visitor is allowed to be active at a
 	 * time, so this is safe.
 	 */
-	//private QuadEdge[] triEdges = new QuadEdge[3];
-
+	QuadEdge* triEdges[3];
 	/**
 	 * Stores the edges for a visited triangle. Also pushes sym (neighbour) edges
 	 * on stack to visit later.
@@ -673,33 +683,37 @@ public:
 	 * @return null if the triangle should not be visited (for instance, if it is
 	 *         outer)
 	 */
-	//private QuadEdge[] fetchTriangleToVisit(QuadEdge edge, Stack edgeStack,
-			//boolean includeFrame, Set visitedEdges) {
-		//QuadEdge curr = edge;
-		//int edgeCount = 0;
-		//boolean isFrame = false;
-		//do {
-			//triEdges[edgeCount] = curr;
+	//QuadEdge (*fetchTriangleToVisit(QuadEdge *edge,
+			//QuadEdgeStack &edgeStack, bool includeFrame,
+			//QuadEdgeSet &visitedEdges))[3] {
+	QuadEdge** fetchTriangleToVisit(QuadEdge *edge,
+			QuadEdgeStack &edgeStack, bool includeFrame,
+			QuadEdgeSet &visitedEdges) {
+		QuadEdge *curr = edge;
+		int edgeCount = 0;
+		bool isFrame = false;
+		do {
+			triEdges[edgeCount] = curr;
 
-			//if (isFrameEdge(curr))
-				//isFrame = true;
+			if (isFrameEdge(*curr))
+				isFrame = true;
 			
-			//// push sym edges to visit next
-			//QuadEdge sym = curr.sym();
-			//if (! visitedEdges.contains(sym))
-				//edgeStack.push(sym);
+			// push sym edges to visit next
+			QuadEdge sym = curr->sym();
+			if (visitedEdges.find(&sym) == visitedEdges.end())
+				edgeStack.push(&sym);
 			
-			//// mark this edge as visited
-			//visitedEdges.add(curr);
+			// mark this edge as visited
+			visitedEdges.insert(curr);
 			
-			//edgeCount++;
-			//curr = curr.lNext();
-		//} while (curr != edge);
+			edgeCount++;
+			curr = &curr->lNext();
+		} while (curr != edge);
 
-		//if (isFrame && !includeFrame)
-			//return null;
-		//return triEdges;
-	//}
+		if (isFrame && !includeFrame)
+			return NULL;
+		return triEdges;
+	}
 
 	/**
 	 * Gets a list of the triangles
@@ -762,55 +776,45 @@ public:
 	 *          true if the frame triangles should be included
 	 * @return a list of Coordinate[4] representing each triangle
 	 */
-	//public List getTriangleCoordinates(boolean includeFrame) {
-		//TriangleCoordinatesVisitor visitor = new TriangleCoordinatesVisitor();
-		//visitTriangles(visitor, includeFrame);
-		//return visitor.getTriangles();
-	//}
+	TriList&
+		getTriangleCoordinates(bool includeFrame) {
+		TriangleCoordinatesVisitor visitor;
+		visitTriangles((TriangleVisitor*)&visitor, includeFrame);
+		return visitor.getTriangles();
+	}
+private:
+	class TriangleCoordinatesVisitor : public TriangleVisitor {
+	private:
+		geom::CoordinateList coordList;
 
-	//private static class TriangleCoordinatesVisitor implements TriangleVisitor {
-		//private CoordinateList coordList = new CoordinateList();
+		TriList triCoords;
 
-		//private List triCoords = new ArrayList();
+	public:
+		TriangleCoordinatesVisitor() {
+		}
 
-		//public TriangleCoordinatesVisitor() {
-		//}
+		//between lists and vectors going on here
+		virtual void visit(QuadEdge* triEdges[3]) {
+			coordList.erase(coordList.begin(), coordList.end());
+			for (int i = 0; i < 3; i++) {
+				Vertex v = triEdges[i]->orig();
+				coordList.insert(coordList.end(), v.getCoordinate());
+			}
+			if (coordList.size() > 0) {
+				coordList.closeRing();
+				geom::Coordinate::Vect *pts = coordList.toCoordinateArray().get();
+				if (pts->size() != 4) {
+					return;
+				}
 
-		//public void visit(QuadEdge[] triEdges) {
-			//coordList.clear();
-			//for (int i = 0; i < 3; i++) {
-				//Vertex v = triEdges[i].orig();
-				//coordList.add(v.getCoordinate());
-			//}
-			//if (coordList.size() > 0) {
-				//coordList.closeRing();
-				//Coordinate[] pts = coordList.toCoordinateArray();
-				//if (pts.length != 4) {
-					////checkTriangleSize(pts);
-					//return;
-				//}
+				triCoords.push_back(pts);
+			}
+		}
 
-				//triCoords.add(pts);
-			//}
-		//}
-
-		//private void checkTriangleSize(Coordinate[] pts)
-		//{
-			//String loc = "";
-			//if (pts.length >= 2)
-				//loc = WKTWriter.toLineString(pts[0], pts[1]);
-			//else {
-				//if (pts.length >= 1)
-					//loc = WKTWriter.toPoint(pts[0]);
-			//}
-			//// Assert.isTrue(pts.length == 4, "Too few points for visited triangle at " + loc);
-			////com.vividsolutions.jts.util.Debug.println("too few points for triangle at " + loc);
-		//}
-		
-		//public List getTriangles() {
-			//return triCoords;
-		//}
-	//}
+		TriList& getTriangles() {
+			return triCoords;
+		}
+	} ; 
 
 	/**
 	 * Gets the geometry for the edges in the subdivision as a {@link MultiLineString}
@@ -838,17 +842,7 @@ public:
 	 * @param geomFact the GeometryFactory to use
 	 * @return a GeometryCollection of triangular Polygons
 	 */
-	//public Geometry getTriangles(GeometryFactory geomFact) {
-		//List triPtsList = getTriangleCoordinates(false);
-		//Polygon[] tris = new Polygon[triPtsList.size()];
-		//int i = 0;
-		//for (Iterator it = triPtsList.iterator(); it.hasNext();) {
-			//Coordinate[] triPt = (Coordinate[]) it.next();
-			//tris[i++] = geomFact
-					//.createPolygon(geomFact.createLinearRing(triPt), null);
-		//}
-		//return geomFact.createGeometryCollection(tris);
-	//}
+	geom::GeometryCollection* getTriangles(const GeometryFactory &geomFact);
 
 	/**
 	 * Gets the cells in the Voronoi diagram for this triangulation.

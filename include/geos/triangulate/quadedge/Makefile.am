@@ -14,4 +14,5 @@ geos_HEADERS = \
 	QuadEdgeSubdivision.h \
 	QuadEdgeLocator.h \
 	LastFoundQuadEdgeLocator.h \
-	LocateFailureException.h 
+	LocateFailureException.h \
+	TriangleVisitor.h
