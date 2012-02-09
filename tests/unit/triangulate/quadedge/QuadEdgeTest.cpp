@@ -59,8 +59,8 @@ namespace tut
 		ensure(s0->orig().equals(q0->dest()));
 		ensure(s0->dest().equals(r0->orig()));
 		//q0, r0, and s0 should have the same left face
-		ensure(q0->lNext() == s0);
-		ensure(s0->lNext() == r0);
+		ensure(&q0->lNext() == s0);
+		ensure(&s0->lNext() == r0);
 
 		delete q0; 
 		delete r0; 
@@ -91,8 +91,8 @@ namespace tut
 		ensure(s0->orig().equals(q0->dest()));
 		ensure(s0->dest().equals(r0->orig()));
 		//q0, r0, and s0 should have the same left face
-		ensure(q0->lNext() == s0);
-		ensure(s0->lNext() == r0);
+		ensure(&q0->lNext() == s0);
+		ensure(&s0->lNext() == r0);
 
 		delete q0; 
 		delete r0; 

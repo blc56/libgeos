@@ -8,7 +8,8 @@ noinst_LTLIBRARIES = libtriangulate.la
 
 INCLUDES = -I$(top_srcdir)/include 
 
-libtriangulate_la_SOURCES = 
+libtriangulate_la_SOURCES = \
+	IncrementalDelaunayTriangulator.cpp 
 
 libtriangulate_la_LIBADD = \
     quadedge/libquadedge.la

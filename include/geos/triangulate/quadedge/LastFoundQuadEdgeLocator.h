@@ -19,6 +19,7 @@
 #ifndef GEOS_TRIANGULATE_QUADEDGE_LASTFOUNDQUADEDGELOCATOR_H
 #define GEOS_TRIANGULATE_QUADEDGE_LASTFOUNDQUADEDGELOCATOR_H
 
+#include <geos/triangulate/quadedge/QuadEdge.h>
 #include <geos/triangulate/quadedge/QuadEdgeLocator.h>
 
 namespace geos {
@@ -34,8 +35,8 @@ private:
 	QuadEdge*			lastEdge;
 
 public:
-	LastFoundQuadEdgeLocator(QuadEdgeSubdivision *subdiv) : subdiv(subdiv){
-		init();
+	LastFoundQuadEdgeLocator(QuadEdgeSubdivision *subdiv) :
+		subdiv(subdiv), lastEdge(NULL) {
 	}
 
 private:
@@ -43,30 +44,14 @@ private:
 		lastEdge = findEdge();
 	}
 
-	virtual QuadEdge* findEdge() {
-		return NULL;
-		//TODO: BLC XXX FIXME IMPLEMENT
-		//Collection edges = subdiv.getEdges();
-		//// assume there is an edge - otherwise will get an exception
-		//return (QuadEdge) edges.iterator().next();
-	}
+	virtual QuadEdge* findEdge();
 
 public:
 	/**
 	 * Locates an edge e, such that either v is on e, or e is an edge of a triangle containing v.
 	 * The search starts from the last located edge amd proceeds on the general direction of v.
 	 */
-	virtual QuadEdge* locate(const Vertex &v) {
-		return NULL;
-		//TODO: BLC XXX FIXME IMPLEMENT
-		//if (! lastEdge.isLive()) {
-			//init();
-		//}
-
-		//QuadEdge e = subdiv.locateFromEdge(v, lastEdge);
-		//lastEdge = e;
-		//return e;
-	}
+	virtual QuadEdge* locate(const Vertex &v);
 }; 
 
 } //namespace geos.triangulate.quadedge

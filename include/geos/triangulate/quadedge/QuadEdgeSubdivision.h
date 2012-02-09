@@ -121,6 +121,9 @@ public:
 		edgeCoincidenceTolerance = tolerance / EDGE_COINCIDENCE_TOL_FACTOR;
 		createFrame(env);
 		initSubdiv(startingEdges);
+		quadEdges.push_back(startingEdges[0]);
+		quadEdges.push_back(startingEdges[1]);
+		quadEdges.push_back(startingEdges[2]);
 	}
 
 private:
@@ -136,8 +139,7 @@ private:
 		}
 
 		frameVertex[0] = Vertex((env.getMaxX() + env.getMinX()) / 2.0, env
-				.getMaxY()
-				+ offset);
+				.getMaxY() + offset);
 		frameVertex[1] = Vertex(env.getMinX() - offset, env.getMinY() - offset);
 		frameVertex[2] = Vertex(env.getMaxX() + offset, env.getMinY() - offset);
 
@@ -246,7 +248,7 @@ public:
 		e.remove();
 
 		//also free the memory for these edges
-		e.free();
+		//e.free();
 	}
 
 	/**
@@ -266,16 +268,15 @@ public:
 	 *           if the location algorithm fails to converge in a reasonable
 	 *           number of iterations
 	 */
-	QuadEdge& locateFromEdge(const Vertex &v,
+	QuadEdge* locateFromEdge(const Vertex &v,
 			const QuadEdge &startEdge) const {
 		int iter = 0;
 		int maxIter = quadEdges.size();
 
-		QuadEdge &e = *startingEdges[0];
+		QuadEdge *e = startingEdges[0];
 
 		while (true) {
-			iter++;
-
+			++iter;
 			/**
 			 * So far it has always been the case that failure to locate indicates an
 			 * invalid subdivision. So just fail completely. (An alternative would be
@@ -291,14 +292,14 @@ public:
 				//throw new LocateFailureException(e.toLineSegment());
 			}
 
-			if ((v.equals(e.orig())) || (v.equals(e.dest()))) {
+			if ((v.equals(e->orig())) || (v.equals(e->dest()))) {
 				break;
-			} else if (v.rightOf(e)) {
-				e = e.sym();
-			} else if (!v.rightOf(e.oNext())) {
-				e = e.oNext();
-			} else if (!v.rightOf(e.dPrev())) {
-				e = e.dPrev();
+			} else if (v.rightOf(*e)) {
+				e = &e->sym();
+			} else if (!v.rightOf(e->oNext())) {
+				e = &e->oNext();
+			} else if (!v.rightOf(e->dPrev())) {
+				e = &e->dPrev();
 			} else {
 				// on edge or in triangle containing edge
 				break;
@@ -376,11 +377,11 @@ public:
 	 *          the vertex to insert
 	 * @return a new quad edge terminating in v
 	 */
-	QuadEdge* insertSite(const Vertex &v) {
+	QuadEdge& insertSite(const Vertex &v) {
 		QuadEdge *e = locate(v);
 
 		if ((v.equals(e->orig(), tolerance)) || (v.equals(e->dest(), tolerance))) {
-			return e; // point already in subdivision.
+			return *e; // point already in subdivision.
 		}
 
 		// Connect the new point to the vertices of the containing
@@ -395,7 +396,7 @@ public:
 			e = &base->oPrev();
 		} while (&e->lNext() != startEdge);
 
-		return startEdge;
+		return *startEdge;
 	}
 
 	/**

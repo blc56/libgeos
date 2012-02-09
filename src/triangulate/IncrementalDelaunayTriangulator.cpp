@@ -12,19 +12,9 @@
  *
  **********************************************************************
  *
- * Last port: triangulate/quadedge/QuadEdgeLocator.java rev. 1.12
+ * Last port: triangulate/IncrementalDelaunayTriangulator.java rev. 1.12
  *
  **********************************************************************/
 
-#include <geos/triangulate/quadedge/QuadEdgeLocator.h>
-
-namespace geos {
-namespace triangulate { //geos.triangulate
-namespace quadedge { //geos.triangulate.quadedge
-
-QuadEdgeLocator::~QuadEdgeLocator() {}
-
-} //namespace geos.triangulate.quadedge
-} //namespace geos.triangulate
-} //namespace goes
+#include <geos/triangulate/IncrementalDelaunayTriangulator.h>
 

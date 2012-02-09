@@ -17,4 +17,29 @@
  **********************************************************************/
 
 #include <geos/triangulate/quadedge/LastFoundQuadEdgeLocator.h>
+#include <geos/triangulate/quadedge/QuadEdgeSubdivision.h>
+
+namespace geos {
+namespace triangulate { //geos.triangulate
+namespace quadedge { //geos.triangulate.quadedge
+
+
+QuadEdge* LastFoundQuadEdgeLocator::findEdge() {
+	// assume there is an edge 
+	return *(subdiv->getEdges().begin());
+}
+
+QuadEdge* LastFoundQuadEdgeLocator::locate(const Vertex &v) {
+	if (!lastEdge || !lastEdge->isLive()) {
+		init();
+	}
+
+	QuadEdge *e = subdiv->locateFromEdge(v, *lastEdge);
+	lastEdge = e;
+	return e;
+}
+
+} //namespace geos.triangulate.quadedge
+} //namespace geos.triangulate
+} //namespace goes
 

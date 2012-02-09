@@ -4,3 +4,9 @@
 SUBDIRS = \
     quadedge
 
+EXTRA_DIST = 
+
+geosdir = $(includedir)/geos/triangulate
+
+geos_HEADERS = \
+	IncrementalDelaunayTriangulator.h 
