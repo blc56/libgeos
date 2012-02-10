@@ -27,7 +27,9 @@
 
 #include <geos/geom/Envelope.h>
 #include <geos/geom/LineSegment.h>
-#include <geos/geom/CoordinateList.h>
+#include <geos/geom/CoordinateSequence.h>
+#include <geos/geom/CoordinateArraySequence.h>
+#include <geos/geom/CoordinateArraySequenceFactory.h>
 #include <geos/geom/GeometryCollection.h>
 #include <geos/geom/GeometryFactory.h>
 #include <geos/util/IllegalArgumentException.h>
@@ -96,6 +98,7 @@ private:
 	// used for edge extraction to ensure edge uniqueness
 	int visitedKey;
 	QuadEdgeList quadEdges;
+	QuadEdgeList removedEdges;
 	QuadEdge* startingEdges[3];
 	double tolerance;
 	double edgeCoincidenceTolerance;
@@ -209,10 +212,10 @@ public:
 	 * @param d
 	 * @return
 	 */
-	virtual QuadEdge* makeEdge(const Vertex &o, const Vertex &d) {
+	virtual QuadEdge& makeEdge(const Vertex &o, const Vertex &d) {
 		QuadEdge *q0 = QuadEdge::makeEdge(o, d);
 		quadEdges.push_back(q0);
-		return q0;
+		return *q0;
 	}
 
 	/**
@@ -224,10 +227,10 @@ public:
 	 * @param b
 	 * @return
 	 */
-	virtual QuadEdge* connect(QuadEdge &a, QuadEdge &b) {
+	virtual QuadEdge& connect(QuadEdge &a, QuadEdge &b) {
 		QuadEdge *q0 = QuadEdge::connect(a, b);
 		quadEdges.push_back(q0);
-		return q0;
+		return *q0;
 	}
 
 	/**
@@ -247,7 +250,12 @@ public:
 		//mark these edges as removed
 		e.remove();
 
+		//keep a list of removed edges so that we can
+		//properly free memory
+		removedEdges.push_back(&e);
+
 		//also free the memory for these edges
+		//BLC: TODO:XXX FIXME free in destructor
 		//e.free();
 	}
 
@@ -387,12 +395,11 @@ public:
 		// Connect the new point to the vertices of the containing
 		// triangle (or quadrilateral, if the new point fell on an
 		// existing edge.)
-		QuadEdge *base = makeEdge(e->orig(), v);
+		QuadEdge *base = &makeEdge(e->orig(), v);
 		QuadEdge::splice(*base, *e);
 		QuadEdge *startEdge = base;
 		do {
-			//TODO: FIXME: XXX: BLC insert into quadEdges??
-			base = connect(*e, base->sym());
+			base = &connect(*e, base->sym());
 			e = &base->oPrev();
 		} while (&e->lNext() != startEdge);
 
@@ -665,7 +672,7 @@ public:
 private:
 	typedef std::stack<QuadEdge*> QuadEdgeStack;
 	typedef std::set<QuadEdge*> QuadEdgeSet;
-	typedef std::list< geom::Coordinate::Vect*> TriList;
+	typedef std::list< geom::CoordinateSequence*> TriList;
 
 	/**
 	 * The quadedges forming a single triangle.
@@ -700,9 +707,9 @@ private:
 				isFrame = true;
 			
 			// push sym edges to visit next
-			QuadEdge sym = curr->sym();
-			if (visitedEdges.find(&sym) == visitedEdges.end())
-				edgeStack.push(&sym);
+			QuadEdge *sym = &curr->sym();
+			if (visitedEdges.find(sym) == visitedEdges.end())
+				edgeStack.push(sym);
 			
 			// mark this edge as visited
 			visitedEdges.insert(curr);
@@ -775,48 +782,34 @@ private:
 	 * 
 	 * @param includeFrame
 	 *          true if the frame triangles should be included
-	 * @return a list of Coordinate[4] representing each triangle
+	 * @param triList a list of Coordinate[4] representing each triangle
 	 */
-	TriList&
-		getTriangleCoordinates(bool includeFrame) {
-		TriangleCoordinatesVisitor visitor;
+	void getTriangleCoordinates(TriList* triList, bool includeFrame) {
+		TriangleCoordinatesVisitor visitor(triList);
 		visitTriangles((TriangleVisitor*)&visitor, includeFrame);
-		return visitor.getTriangles();
 	}
 private:
 	class TriangleCoordinatesVisitor : public TriangleVisitor {
 	private:
-		geom::CoordinateList coordList;
-
-		TriList triCoords;
+		TriList *triCoords;
+		CoordinateArraySequenceFactory coordSeqFact;
 
 	public:
-		TriangleCoordinatesVisitor() {
+		TriangleCoordinatesVisitor(TriList *triCoords): triCoords(triCoords) {
 		}
 
-		//between lists and vectors going on here
 		virtual void visit(QuadEdge* triEdges[3]) {
-			coordList.erase(coordList.begin(), coordList.end());
+			geom::CoordinateSequence *coordSeq = coordSeqFact.create(4,2);
 			for (int i = 0; i < 3; i++) {
 				Vertex v = triEdges[i]->orig();
-				coordList.insert(coordList.end(), v.getCoordinate());
+				coordSeq->setAt(v.getCoordinate(), i);
 			}
-			if (coordList.size() > 0) {
-				coordList.closeRing();
-				geom::Coordinate::Vect *pts = coordList.toCoordinateArray().get();
-				if (pts->size() != 4) {
-					return;
-				}
-
-				triCoords.push_back(pts);
-			}
-		}
-
-		TriList& getTriangles() {
-			return triCoords;
+			coordSeq->setAt(triEdges[0]->orig().getCoordinate(), 3);
+			triCoords->push_back(coordSeq);
 		}
 	} ; 
 
+public:
 	/**
 	 * Gets the geometry for the edges in the subdivision as a {@link MultiLineString}
 	 * containing 2-point lines.

@@ -25,6 +25,7 @@
 #include <geos/triangulate/quadedge/Vertex.h>
 
 
+using namespace geos::triangulate;
 using namespace geos::triangulate::quadedge;
 
 namespace geos {
@@ -37,13 +38,13 @@ namespace triangulate { //geos.triangulate
  * @author JTS: Martin Davis
  * @author Benjamin Campbell
  */
-//class GEOS_DLL IncrementalDelaunayTriangulator 
-//{
-//private:
-	//QuadEdgeSubdivision *subdiv;
-	//bool isUsingTolerance;
+class GEOS_DLL IncrementalDelaunayTriangulator 
+{
+private:
+	QuadEdgeSubdivision *subdiv;
+	bool isUsingTolerance;
 
-//public:
+public:
 	/**
 	 * Creates a new triangulator using the given {@link QuadEdgeSubdivision}.
 	 * The triangulator uses the tolerance of the supplied subdivision.
@@ -65,12 +66,12 @@ namespace triangulate { //geos.triangulate
 	 * 
    * @throws LocateFailureException if the location algorithm fails to converge in a reasonable number of iterations
 	 */
-	////public void insertSites(Collection vertices) {
-		////for (Iterator i = vertices.iterator(); i.hasNext();) {
-			////Vertex v = (Vertex) i.next();
-			////insertSite(v);
-		////}
-	////}
+	//public void insertSites(Collection vertices) {
+		//for (Iterator i = vertices.iterator(); i.hasNext();) {
+			//Vertex v = (Vertex) i.next();
+			//insertSite(v);
+		//}
+	//}
 
 	/**
 	 * Inserts a new point into a subdivision representing a Delaunay
@@ -80,7 +81,7 @@ namespace triangulate { //geos.triangulate
 	 * 
 	 * @return a quadedge containing the inserted vertex
 	 */
-	//QuadEdge* insertSite(const Vertex &v) {
+	//QuadEdge& insertSite(const Vertex &v) {
 		/**
 		 * This code is based on Guibas and Stolfi (1985), with minor modifications
 		 * and a bug fix from Dani Lischinski (Graphic Gems 1993). (The modification
@@ -92,43 +93,44 @@ namespace triangulate { //geos.triangulate
 
 		//if (subdiv->isVertexOfEdge(*e, v)) {
 			//// point is already in subdivision.
-			//return e; 
+			//return *e; 
 		//} 
-		//else if (subdiv->isOnEdge(e, v.getCoordinate())) {
+		//else if (subdiv->isOnEdge(*e, v.getCoordinate())) {
 			//// the point lies exactly on an edge, so delete the edge 
 			//// (it will be replaced by a pair of edges which have the point as a vertex)
-			//e = e.oPrev();
-			//subdiv.delete(e.oNext());
+			//e = &e->oPrev();
+			//subdiv->remove(e->oNext());
 		//}
 
 		/**
 		 * Connect the new point to the vertices of the containing triangle 
 		 * (or quadrilateral, if the new point fell on an existing edge.)
 		 */
-		//QuadEdge base = subdiv.makeEdge(e.orig(), v);
-		//QuadEdge.splice(base, e);
-		//QuadEdge startEdge = base;
+		//QuadEdge base = subdiv->makeEdge(e->orig(), v);
+		//QuadEdge::splice(base, *e);
+		//QuadEdge *startEdge = &base;
 		//do {
-			//base = subdiv.connect(e, base.sym());
-			//e = base.oPrev();
-		//} while (e.lNext() != startEdge);
+			//base = subdiv->connect(*e, base.sym());
+			//e = &base.oPrev();
+		//} while (&e->lNext() != startEdge);
 
 		//// Examine suspect edges to ensure that the Delaunay condition
 		//// is satisfied.
 		//do {
-			//QuadEdge t = e.oPrev();
-			//if (t.dest().rightOf(e) && v.isInCircle(e.orig(), t.dest(), e.dest())) {
-				//QuadEdge.swap(e);
-				//e = e.oPrev();
-			//} else if (e.oNext() == startEdge) {
+			//QuadEdge t = e->oPrev();
+			//if (t.dest().rightOf(*e) &&
+					//v.isInCircle(e->orig(), t.dest(), e->dest())) {
+				//QuadEdge::swap(*e);
+				//e = &e->oPrev();
+			//} else if (&e->oNext() == startEdge) {
 				//return base; // no more suspect edges.
 			//} else {
-				//e = e.oNext().lPrev();
+				//e = &e->oNext().lPrev();
 			//}
 		//} while (true);
 	//}
 
-//};
+};
 
 } //namespace geos.triangulate
 } //namespace goes

@@ -16,7 +16,6 @@
  *
  **********************************************************************/
 
-#include <geos/geom/CoordinateArraySequenceFactory.h>
 #include <geos/geom/Polygon.h>
 #include <geos/triangulate/quadedge/QuadEdgeSubdivision.h>
 
@@ -28,26 +27,21 @@ namespace quadedge { //geos.triangulate.quadedge
 
 GeometryCollection* QuadEdgeSubdivision::getTriangles(
 		const GeometryFactory &geomFact) {
-	TriList triPtsList = getTriangleCoordinates(false);
+	TriList triPtsList;
+	getTriangleCoordinates(&triPtsList, false);
 	std::vector<Geometry*> tris;
-	CoordinateArraySequenceFactory coordSeqFact;
 
 	for(TriList::const_iterator it = triPtsList.begin();
 			it != triPtsList.end(); ++it)
 	{
-		Coordinate::Vect* tript = *it;
-		CoordinateSequence *coordSeq =
-			coordSeqFact.create(tript);
+		CoordinateSequence *coordSeq = *it;
 		Polygon *tri = geomFact.createPolygon(
 				geomFact.createLinearRing(coordSeq), NULL);
 		tris.push_back(dynamic_cast<Geometry*>(tri));
-
-		//tris[i++] = geomfact
-				//.createpolygon(geomfact.createlinearring(tript), null);
 	}
 	GeometryCollection* ret =  geomFact.createGeometryCollection(tris);
 	//TODO: BLC: XXX don't leak memory!
-	tris.clear();//calls destructors for polygon pointers
+	tris.clear();
 	return ret;
 }
 
