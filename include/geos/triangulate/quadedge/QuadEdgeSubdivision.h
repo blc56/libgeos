@@ -36,6 +36,7 @@
 #include <geos/triangulate/quadedge/QuadEdge.h>
 #include <geos/triangulate/quadedge/QuadEdgeLocator.h>
 #include <geos/triangulate/quadedge/LastFoundQuadEdgeLocator.h>
+#include <geos/triangulate/quadedge/LocateFailureException.h>
 #include <geos/triangulate/quadedge/TriangleVisitor.h>
 #include <geos/util/GEOSException.h>
 
@@ -295,9 +296,7 @@ public:
 			 * since the orientation predicates may experience precision failures.
 			 */
 			if (iter > maxIter) {
-				//TODO:FIXME: BLC throw the proper kind of exception here
-				throw util::GEOSException("Failed to locate");
-				//throw new LocateFailureException(e.toLineSegment());
+				throw LocateFailureException("");
 			}
 
 			if ((v.equals(e->orig())) || (v.equals(e->dest()))) {

@@ -19,8 +19,10 @@
 #ifndef GEOS_TRIANGULATE_QUADEDGE_QUADEDGE_H
 #define GEOS_TRIANGULATE_QUADEDGE_QUADEDGE_H
 
+#include <memory>
+
 //TODO: XXX: FIXME: BLC: QuadEdge Memory managment and valgrind!!
-// ref counting???
+//TODO: XXX: FIXME: BLC: Return auto_ptr's when appropriate
 //TODO: XXX: FIXME: BLC: Move function defs to .cpp files!!
 //TODO: XXX: FIXME: BLC: Don't put 'using' in header files!!
 
@@ -449,9 +451,10 @@ public:
 	 * 
 	 * @return a LineSegment
 	 */
-	LineSegment* toLineSegment() const
+	std::auto_ptr<LineSegment> toLineSegment() const
 	{
-		return new LineSegment(vertex.getCoordinate(), dest().getCoordinate());
+		return std::auto_ptr<LineSegment>(
+				new LineSegment(vertex.getCoordinate(), dest().getCoordinate()));
 	}
 };
 
