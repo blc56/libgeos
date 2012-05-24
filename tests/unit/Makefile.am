@@ -101,6 +101,7 @@ geos_unit_SOURCES = \
 	simplify/TopologyPreservingSimplifierTest.cpp \
 	triangulate/quadedge/QuadEdgeTest.cpp \
 	triangulate/quadedge/QuadEdgeSubdivisionTest.cpp \
+	triangulate/IncrementalDelaunayTriangulatorTest.cpp \
 	util/UniqueCoordinateArrayFilterTest.cpp \
 	capi/GEOSCoordSeqTest.cpp \
 	capi/GEOSGeomFromWKBTest.cpp \

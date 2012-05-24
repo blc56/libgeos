@@ -9,4 +9,5 @@ EXTRA_DIST =
 geosdir = $(includedir)/geos/triangulate
 
 geos_HEADERS = \
-	IncrementalDelaunayTriangulator.h 
+	IncrementalDelaunayTriangulator.h \
+	DelaunayTriangulationBuilder.h 

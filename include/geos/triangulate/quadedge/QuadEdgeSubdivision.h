@@ -347,6 +347,7 @@ public:
 	 * @param p1 another coordinate
 	 * @return the edge joining the coordinates, if present
 	 * @return null if no such edge exists
+	 * @return the caller _should not_ free the returned pointer
 	 */
 	QuadEdge* locate(const Coordinate &p0, const Coordinate &p1) {
 		// find an edge containing one of the points
@@ -428,11 +429,6 @@ public:
 	 * @return true if the edge is on the border of the frame
 	 */
 	bool isFrameBorderEdge(const QuadEdge &e) const {
-		//QuadEdge[] leftTri = new QuadEdge[3];
-		//getTriangleEdges(e, leftTri);
-		//QuadEdge[] rightTri = new QuadEdge[3];
-		//getTriangleEdges(e.sym(), rightTri);
-
 		// check other vertex of triangle to left of edge
 		Vertex vLeftTriOther = e.lNext().dest();
 		if (isFrameVertex(vLeftTriOther))
@@ -715,6 +711,7 @@ private:
 			
 			edgeCount++;
 			curr = &curr->lNext();
+
 		} while (curr != edge);
 
 		if (isFrame && !includeFrame)
