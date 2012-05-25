@@ -8,6 +8,7 @@
 #include <geos/triangulate/quadedge/QuadEdgeSubdivision.h>
 #include <geos/triangulate/IncrementalDelaunayTriangulator.h>
 #include <geos/io/WKTWriter.h>
+#include <geos/io/WKTReader.h>
 #include <geos/geom/GeometryCollection.h>
 #include <geos/geom/GeometryFactory.h>
 
@@ -37,6 +38,15 @@ namespace tut
 
 	group test_incdelaunaytri_group("geos::triangulate::IncrementalDelaunayTriangulator");
 
+	//helper function for funning triangulation
+	//void runDelaunay(const char *sitesWkt, bool computTriangles, const char *expectedWkt)
+	//{
+		//WKTReader reader;
+		//Geometry *sites = reader.read(sitesWkt);
+		//QuadEdgeSubdivision sub(*sites->getEnvelopeInternal(), .00001);
+		//IncrementalDelaunayTriangulator triangulator(&sub);
+	//}
+
 	//
 	// Test Cases
 	//
@@ -58,6 +68,7 @@ namespace tut
 		GeometryCollection *tris = sub.getTriangles(geomFact);
 		WKTWriter wkt;
 		printf("%s\n", wkt.writeFormatted(tris).c_str());
+		delete tris;
 	}
 } // namespace tut
 

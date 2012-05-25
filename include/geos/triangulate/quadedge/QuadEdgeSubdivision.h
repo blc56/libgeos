@@ -130,6 +130,20 @@ public:
 		quadEdges.push_back(startingEdges[2]);
 	}
 
+	~QuadEdgeSubdivision() {
+		for(QuadEdgeList::iterator iter=quadEdges.begin(); iter!=quadEdges.end(); ++iter)
+		{
+			(*iter)->free();
+			delete *iter;
+		}
+
+		for(QuadEdgeList::iterator iter=removedEdges.begin(); iter!=removedEdges.end(); ++iter)
+		{
+			(*iter)->free();
+			delete *iter;
+		}
+	}
+
 private:
 	virtual void createFrame(const geom::Envelope &env)
 	{
@@ -254,10 +268,6 @@ public:
 		//keep a list of removed edges so that we can
 		//properly free memory
 		removedEdges.push_back(&e);
-
-		//also free the memory for these edges
-		//BLC: TODO:XXX FIXME free in destructor
-		//e.free();
 	}
 
 	/**

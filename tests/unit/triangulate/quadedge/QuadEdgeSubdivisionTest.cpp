@@ -62,6 +62,7 @@ namespace tut
 
 		GeometryFactory geomFact;
 		GeometryCollection *tris = sub.getTriangles(geomFact);
+		delete tris;
 		//WKTWriter wkt;
 		//printf("%s\n", wkt.writeFormatted(tris).c_str());
 	}

@@ -175,7 +175,7 @@ public:
 	 * Free the QuadEdge quartet associated with this QuadEdge by a connect()
 	 * or makeEdge() call.
 	 * DO NOT call this function on a QuadEdge that was not returned
-	 * by connect() or makeEdge() as it will cause double free's.
+	 * by connect() or makeEdge().
 	 */
 	virtual void free()
 	{

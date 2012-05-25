@@ -62,8 +62,11 @@ namespace tut
 		ensure(&q0->lNext() == s0);
 		ensure(&s0->lNext() == r0);
 
+		q0->free();
 		delete q0; 
+		r0->free();
 		delete r0; 
+		s0->free();
 		delete s0; 
 	}
 
@@ -94,8 +97,11 @@ namespace tut
 		ensure(&q0->lNext() == s0);
 		ensure(&s0->lNext() == r0);
 
+		q0->free();
 		delete q0; 
+		r0->free();
 		delete r0; 
+		s0->free();
 		delete s0; 
 	}
 
