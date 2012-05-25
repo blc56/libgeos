@@ -55,7 +55,7 @@ public:
 			subdiv(subdiv), isUsingTolerance(subdiv->getTolerance() > 0.0) { 
 	}
 
-	typedef std::list<Vertex*> VertexList;
+	typedef std::list<Vertex> VertexList;
 
 	/**
 	 * Inserts all sites in a collection. The inserted vertices <b>MUST</b> be
@@ -70,7 +70,7 @@ public:
 	void insertSites(const VertexList& vertices) {
 		for (VertexList::const_iterator x=vertices.begin(); 
 				x != vertices.end(); ++x) {
-			insertSite(**x);
+			insertSite(*x);
 		}
 	}
 

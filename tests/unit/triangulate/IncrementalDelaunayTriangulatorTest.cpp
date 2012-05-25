@@ -7,6 +7,7 @@
 // geos
 #include <geos/triangulate/quadedge/QuadEdgeSubdivision.h>
 #include <geos/triangulate/IncrementalDelaunayTriangulator.h>
+#include <geos/triangulate/DelaunayTriangulationBuilder.h>
 #include <geos/io/WKTWriter.h>
 #include <geos/io/WKTReader.h>
 #include <geos/geom/GeometryCollection.h>
@@ -39,13 +40,27 @@ namespace tut
 	group test_incdelaunaytri_group("geos::triangulate::IncrementalDelaunayTriangulator");
 
 	//helper function for funning triangulation
-	//void runDelaunay(const char *sitesWkt, bool computTriangles, const char *expectedWkt)
-	//{
-		//WKTReader reader;
-		//Geometry *sites = reader.read(sitesWkt);
-		//QuadEdgeSubdivision sub(*sites->getEnvelopeInternal(), .00001);
-		//IncrementalDelaunayTriangulator triangulator(&sub);
-	//}
+	void runDelaunay(const char *sitesWkt, bool computeTriangles, const char *expectedWkt)
+	{
+		WKTReader reader;
+		Geometry *results;
+		Geometry *sites = reader.read(sitesWkt);
+		Geometry *expected = reader.read(expectedWkt);
+		DelaunayTriangulationBuilder builder;
+		GeometryFactory geomFact;
+
+		builder.setSites(*sites);
+		if(computeTriangles)
+			results=builder.getTriangles(geomFact);
+		//else
+			//results=builder.getEdges(geomFact);
+			
+		ensure(results->equalsExact(expected));
+
+		delete sites;
+		delete expected;
+		delete results;
+	}
 
 	//
 	// Test Cases
@@ -69,6 +84,17 @@ namespace tut
 		WKTWriter wkt;
 		printf("%s\n", wkt.writeFormatted(tris).c_str());
 		delete tris;
+	}
+
+	// 2 - Test grid
+	template<>
+	template<>
+	void object::test<2>()
+	{
+		char * wkt = "MULTIPOINT ((10 10), (10 20), (20 20), (20 10), (20 0), (10 0), (0 0), (0 10), (0 20))";
+		char * expectedTri = "GEOMETRYCOLLECTION (POLYGON ((0 20, 0 10, 10 10, 0 20)), POLYGON ((0 20, 10 10, 10 20, 0 20)), POLYGON ((10 20, 10 10, 20 10, 10 20)), POLYGON ((10 20, 20 10, 20 20, 10 20)), POLYGON ((10 0, 20 0, 10 10, 10 0)), POLYGON ((10 0, 10 10, 0 10, 10 0)), POLYGON ((10 0, 0 10, 0 0, 10 0)), POLYGON ((10 10, 20 0, 20 10, 10 10)))";
+
+		runDelaunay(wkt, true, expectedTri);
 	}
 } // namespace tut
 
