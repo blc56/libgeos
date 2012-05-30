@@ -43,7 +43,7 @@ namespace tut
 	void runDelaunay(const char *sitesWkt, bool computeTriangles, const char *expectedWkt)
 	{
 		WKTReader reader;
-		Geometry *results;
+		std::auto_ptr<Geometry> results;
 		Geometry *sites = reader.read(sitesWkt);
 		Geometry *expected = reader.read(expectedWkt);
 		DelaunayTriangulationBuilder builder;
@@ -62,7 +62,6 @@ namespace tut
 
 		delete sites;
 		delete expected;
-		delete results;
 	}
 
 	//
@@ -83,8 +82,7 @@ namespace tut
 
 		//extract the triangles from the subdivision
 		GeometryFactory geomFact;
-		GeometryCollection *tris = sub.getTriangles(geomFact);
-		delete tris;
+		std::auto_ptr<GeometryCollection> tris = sub.getTriangles(geomFact);
 	}
 
 	// 2 - Test Triangle
@@ -97,6 +95,7 @@ namespace tut
 		const char * expectedTri = "GEOMETRYCOLLECTION (POLYGON ((10 20, 10 10, 20 20, 10 20)))";
 
 		runDelaunay(wkt, true, expectedTri);
+		runDelaunay(wkt, false, expectedEdges);
 	}
 
 	// 3 - Test Random

@@ -22,6 +22,7 @@
 #include <geos/triangulate/quadedge/QuadEdge.h>
 #include <geos/triangulate/quadedge/QuadEdgeSubdivision.h>
 #include <geos/triangulate/quadedge/Vertex.h>
+#include <geos/triangulate/quadedge/LocateFailureException.h>
 
 using namespace geos::triangulate;
 using namespace geos::triangulate::quadedge;

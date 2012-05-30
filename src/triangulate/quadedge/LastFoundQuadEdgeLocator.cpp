@@ -23,13 +23,24 @@ namespace geos {
 namespace triangulate { //geos.triangulate
 namespace quadedge { //geos.triangulate.quadedge
 
+LastFoundQuadEdgeLocator::LastFoundQuadEdgeLocator(QuadEdgeSubdivision *subdiv) :
+	subdiv(subdiv), lastEdge(NULL)
+{
+}
 
-QuadEdge* LastFoundQuadEdgeLocator::findEdge() {
+void LastFoundQuadEdgeLocator::init()
+{
+	lastEdge = findEdge();
+}
+
+QuadEdge* LastFoundQuadEdgeLocator::findEdge()
+{
 	// assume there is an edge 
 	return *(subdiv->getEdges().begin());
 }
 
-QuadEdge* LastFoundQuadEdgeLocator::locate(const Vertex &v) {
+QuadEdge* LastFoundQuadEdgeLocator::locate(const Vertex &v)
+{
 	if (!lastEdge || !lastEdge->isLive()) {
 		init();
 	}

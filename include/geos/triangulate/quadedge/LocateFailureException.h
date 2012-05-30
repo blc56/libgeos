@@ -29,10 +29,7 @@ namespace quadedge { //geos.triangulate.quadedge
 
 class GEOS_DLL LocateFailureException : public geos::util::GEOSException {
 public:
-	LocateFailureException(std::string const&msg)
-	{
-		util::GEOSException("LocateFailureException", msg);
-	}
+	LocateFailureException(std::string const&msg);
 };
 
 } //namespace geos.triangulate.quadedge
@@ -40,3 +37,4 @@ public:
 } //namespace goes
 
 #endif //GEOS_TRIANGULATE_QUADEDGE_LOCATEFAILUREEXCEPTION_H
+

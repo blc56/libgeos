@@ -10,7 +10,7 @@
 #include <geos/triangulate/quadedge/QuadEdgeSubdivision.h>
 #include <geos/geom/GeometryCollection.h>
 #include <geos/geom/GeometryFactory.h>
-#include <geos/io/WKTWriter.h>
+//#include <geos/io/WKTWriter.h>
 #include <geos/geom/Envelope.h>
 #include <geos/geom/Coordinate.h>
 // std
@@ -61,8 +61,8 @@ namespace tut
 		ensure(!sub.isVertexOfEdge(e, Vertex(10, 10)));
 
 		GeometryFactory geomFact;
-		GeometryCollection *tris = sub.getTriangles(geomFact);
-		delete tris;
+		std::auto_ptr<GeometryCollection> tris = sub.getTriangles(geomFact);
+		tris.reset();
 		//WKTWriter wkt;
 		//printf("%s\n", wkt.writeFormatted(tris).c_str());
 	}

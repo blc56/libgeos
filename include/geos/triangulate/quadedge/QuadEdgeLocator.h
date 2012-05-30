@@ -33,7 +33,7 @@ namespace quadedge { //geos.triangulate.quadedge
  * Implementors may utilized different strategies for
  * optimizing locating containing edges/triangles.
  * 
- * @author Martin Davis
+ * @author JTS: Martin Davis
  * @author Ben Campbell
  */
 class QuadEdgeLocator {
