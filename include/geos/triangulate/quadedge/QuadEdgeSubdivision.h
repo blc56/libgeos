@@ -168,12 +168,22 @@ private:
 	
 	virtual void initSubdiv(QuadEdge* initEdges[3])
 	{
+		std::auto_ptr<QuadEdge> tmp_auto_ptr;
 		// build initial subdivision from frame
-		initEdges[0] = QuadEdge::makeEdge(frameVertex[0], frameVertex[1]);
-		initEdges[1] = QuadEdge::makeEdge(frameVertex[1], frameVertex[2]); 
+		tmp_auto_ptr = QuadEdge::makeEdge(frameVertex[0], frameVertex[1]);
+		initEdges[0] = tmp_auto_ptr.get();
+		tmp_auto_ptr.release();
+
+
+		tmp_auto_ptr = QuadEdge::makeEdge(frameVertex[1], frameVertex[2]);
+		initEdges[1] = tmp_auto_ptr.get();
+		tmp_auto_ptr.release();
 
 		QuadEdge::splice(initEdges[0]->sym(), *initEdges[1]);
-		initEdges[2] = QuadEdge::makeEdge(frameVertex[2], frameVertex[0]);
+
+		tmp_auto_ptr = QuadEdge::makeEdge(frameVertex[2], frameVertex[0]);
+		initEdges[2] = tmp_auto_ptr.get();
+		tmp_auto_ptr.release();
 
 		QuadEdge::splice(initEdges[1]->sym(), *initEdges[2]);
 		QuadEdge::splice(initEdges[2]->sym(), *initEdges[0]);
@@ -228,9 +238,12 @@ public:
 	 * @return
 	 */
 	virtual QuadEdge& makeEdge(const Vertex &o, const Vertex &d) {
-		QuadEdge *q0 = QuadEdge::makeEdge(o, d);
-		quadEdges.push_back(q0);
-		return *q0;
+		std::auto_ptr<QuadEdge> q0 = QuadEdge::makeEdge(o, d);
+		QuadEdge *q0_ptr = q0.get();
+		q0.release();
+
+		quadEdges.push_back(q0_ptr);
+		return *q0_ptr;
 	}
 
 	/**
@@ -243,9 +256,12 @@ public:
 	 * @return
 	 */
 	virtual QuadEdge& connect(QuadEdge &a, QuadEdge &b) {
-		QuadEdge *q0 = QuadEdge::connect(a, b);
-		quadEdges.push_back(q0);
-		return *q0;
+		std::auto_ptr<QuadEdge> q0 = QuadEdge::connect(a, b);
+		QuadEdge *q0_ptr = q0.get();
+		q0.release();
+
+		quadEdges.push_back(q0_ptr);
+		return *q0_ptr;
 	}
 
 	/**

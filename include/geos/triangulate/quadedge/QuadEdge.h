@@ -25,11 +25,10 @@
 //TODO: XXX: FIXME: BLC: Return auto_ptr's when appropriate
 //TODO: XXX: FIXME: BLC: Move function defs to .cpp files!!
 //TODO: XXX: FIXME: BLC: Don't put 'using' in header files!!
+//TODO: XXX: FIXME: BLC: Author check!!
 
 #include <geos/triangulate/quadedge/Vertex.h>
 #include <geos/geom/LineSegment.h>
-
-using geos::geom::LineSegment;
 
 namespace geos {
 namespace triangulate { //geos.triangulate
@@ -67,29 +66,7 @@ public:
 	 * @return the new QuadEdge* The caller is reponsible for
 	 * freeing the returned pointer
 	 */
-	static QuadEdge* makeEdge(const Vertex &o, const Vertex &d) {
-		QuadEdge *q0 = new QuadEdge();
-		//q1-q3 are free()'d by q0
-		QuadEdge *q1 = new QuadEdge();
-		QuadEdge *q2 = new QuadEdge();
-		QuadEdge *q3 = new QuadEdge();
-
-		q0->_rot = q1;
-		q1->_rot = q2;
-		q2->_rot = q3;
-		q3->_rot = q0;
-
-		q0->setNext(q0);
-		q1->setNext(q3);
-		q2->setNext(q2);
-		q3->setNext(q1);
-
-		QuadEdge *base = q0;
-		base->setOrig(o);
-		base->setDest(d);
-
-		return base;
-	}
+	static std::auto_ptr<QuadEdge> makeEdge(const Vertex &o, const Vertex &d);
 
 	/**
 	 * Creates a new QuadEdge connecting the destination of a to the origin of
@@ -100,12 +77,7 @@ public:
 	 * @return the new QuadEdge* The caller is reponsible for
 	 * freeing the returned pointer
 	 */
-	static QuadEdge* connect(QuadEdge &a, QuadEdge &b) {
-		QuadEdge *q0 = makeEdge(a.dest(), b.orig());
-		splice(*q0, a.lNext());
-		splice(q0->sym(), b);
-		return q0;
-	}
+	static std::auto_ptr<QuadEdge> connect(QuadEdge &a, QuadEdge &b);
 
 	/**
 	 * Splices two edges together or apart.
@@ -120,36 +92,14 @@ public:
 	 * @param b an edge to splice
 	 * 
 	 */
-	static void splice(QuadEdge &a, QuadEdge &b) {
-		QuadEdge &alpha = a.oNext().rot();
-		QuadEdge &beta = b.oNext().rot();
-
-		QuadEdge &t1 = b.oNext();
-		QuadEdge &t2 = a.oNext();
-		QuadEdge &t3 = beta.oNext();
-		QuadEdge &t4 = alpha.oNext();
-
-		a.setNext(&t1);
-		b.setNext(&t2);
-		alpha.setNext(&t3);
-		beta.setNext(&t4);
-	}
+	static void splice(QuadEdge &a, QuadEdge &b);
 
 	/**
 	 * Turns an edge counterclockwise inside its enclosing quadrilateral.
 	 * 
 	 * @param e the quadedge to turn
 	 */
-	static void swap(QuadEdge &e) {
-		QuadEdge &a = e.oPrev();
-		QuadEdge &b = e.sym().oPrev();
-		splice(e, a);
-		splice(e.sym(), b);
-		splice(e, a.lNext());
-		splice(e.sym(), b.lNext());
-		e.setOrig(a.dest());
-		e.setDest(b.dest());
-	}
+	static void swap(QuadEdge &e);
 
 private:
 	//// the dual of this edge, directed from right to left
@@ -163,13 +113,10 @@ private:
 	 * Quadedges must be made using {@link makeEdge}, 
 	 * to ensure proper construction.
 	 */
-	QuadEdge() : _rot(NULL), vertex(), next(NULL), data(NULL), isAlive(true)
-	{ }
+	QuadEdge();
 
 public:
-	~QuadEdge()
-	{
-	}
+	~QuadEdge();
 
 	/**
 	 * Free the QuadEdge quartet associated with this QuadEdge by a connect()
@@ -177,24 +124,7 @@ public:
 	 * DO NOT call this function on a QuadEdge that was not returned
 	 * by connect() or makeEdge().
 	 */
-	virtual void free()
-	{
-		if(_rot)
-		{
-			if(_rot->_rot)
-			{
-				if(_rot->_rot->_rot)
-				{
-					delete _rot->_rot->_rot;
-					_rot->_rot->_rot = NULL;
-				}
-				delete _rot->_rot;
-				_rot->_rot = NULL;
-			}
-			delete _rot;
-			_rot = NULL;
-		}
-	}
+	virtual void free();
 
 	/**
 	 * Gets the primary edge of this quadedge and its <tt>sym</tt>.
@@ -204,31 +134,21 @@ public:
 	 * 
 	 * @return the primary quadedge
 	 */
-	const QuadEdge& getPrimary() const
-	{
-		if (orig().getCoordinate().compareTo(dest().getCoordinate()) <= 0)
-			return *this;
-		else 
-			return sym();
-	}
+	const QuadEdge& getPrimary() const;
 	
 	/**
 	 * Sets the external data value for this edge.
 	 * 
 	 * @param data an object containing external data
 	 */
-	virtual void setData(void* data) {
-		this->data = data;
-	}
+	virtual void setData(void* data);
 	
 	/**
 	 * Gets the external data value for this edge.
 	 * 
 	 * @return the data object
 	 */
-	virtual void* getData() {
-		return data;
-	}
+	virtual void* getData();
 
 	/**
 	 * Marks this quadedge as being deleted.
@@ -238,19 +158,14 @@ public:
 	 * in a subdivision.
 	 *
 	 */
-	virtual void remove() {
-		rot().rot().rot().isAlive = false;
-		rot().rot().isAlive = false;
-		rot().isAlive = false;
-		isAlive = false;
-	}
+	void remove();
 	
 	/**
 	 * Tests whether this edge has been deleted.
 	 * 
 	 * @return true if this edge has not been deleted.
 	 */
-	virtual bool isLive() {
+	inline bool isLive() {
 		return isAlive;
 	}
 
@@ -260,7 +175,7 @@ public:
 	 * 
 	 * @param nextEdge edge
 	 */
-	virtual void setNext(QuadEdge *next) {
+	inline void setNext(QuadEdge *next) {
 		this->next = next;
 	}
 	
@@ -274,7 +189,7 @@ public:
 	 * 
 	 * @return the rotated edge
 	 */
-	 QuadEdge& rot() const {
+	 inline QuadEdge& rot() const {
 	  return *_rot;
 	}
 
@@ -283,7 +198,7 @@ public:
 	 * 
 	 * @return the inverse rotated edge.
 	 */
-	QuadEdge& invRot() const  {
+	inline QuadEdge& invRot() const  {
 	  return rot().sym();
 	}
 
@@ -292,7 +207,7 @@ public:
 	 * 
 	 * @return the sym of the edge
 	 */
-	QuadEdge& sym() const {
+	inline QuadEdge& sym() const {
 	  return rot().rot();
 	}
 
@@ -301,7 +216,7 @@ public:
 	 * 
 	 * @return the next linked edge.
 	 */
-	QuadEdge& oNext() const {
+	inline QuadEdge& oNext() const {
 		return *next;
 	}
 
@@ -310,7 +225,7 @@ public:
 	 * 
 	 * @return the previous edge.
 	 */
-	QuadEdge& oPrev() const {
+	inline QuadEdge& oPrev() const {
 		return rot().oNext().rot();
 	}
 
@@ -319,7 +234,7 @@ public:
 	 * 
 	 * @return the next destination edge.
 	 */
-	QuadEdge& dNext() const {
+	inline QuadEdge& dNext() const {
 		return sym().oNext().sym();
 	}
 
@@ -328,7 +243,7 @@ public:
 	 * 
 	 * @return the previous destination edge.
 	 */
-	QuadEdge& dPrev() const {
+	inline QuadEdge& dPrev() const {
 		return invRot().oNext().invRot();
 	}
 
@@ -337,7 +252,7 @@ public:
 	 * 
 	 * @return the next left face edge.
 	 */
-	QuadEdge& lNext() const {
+	inline QuadEdge& lNext() const {
 		return invRot().oNext().rot();
 	}
 
@@ -346,7 +261,7 @@ public:
 	 * 
 	 * @return the previous left face edge.
 	 */
-	QuadEdge& lPrev() const {
+	inline QuadEdge& lPrev() const {
 		return oNext().sym();
 	}
 
@@ -355,7 +270,7 @@ public:
 	 * 
 	 * @return the next right face edge.
 	 */
-	QuadEdge& rNext() {
+	inline QuadEdge& rNext() {
 		return rot().oNext().invRot();
 	}
 
@@ -364,7 +279,7 @@ public:
 	 * 
 	 * @return the previous right face edge.
 	 */
-	QuadEdge& rPrev() {
+	inline QuadEdge& rPrev() {
 		return sym().oNext();
 	}
 
@@ -376,7 +291,7 @@ public:
 	 * 
 	 * @param o the origin vertex
 	 */
-	virtual void setOrig(const Vertex &o) {
+	inline void setOrig(const Vertex &o) {
 		vertex = o;
 	}
 
@@ -385,7 +300,7 @@ public:
 	 * 
 	 * @param d the destination vertex
 	 */
-	virtual void setDest(const Vertex &d) {
+	inline void setDest(const Vertex &d) {
 		sym().setOrig(d);
 	}
 
@@ -412,7 +327,7 @@ public:
 	 * 
 	 * @return the length of the quadedge
 	 */
-	double getLength() const {
+	inline double getLength() const {
 		return orig().getCoordinate().distance(dest().getCoordinate());
 	}
 
@@ -423,13 +338,7 @@ public:
 	 * @param qe a quadege
 	 * @return true if the quadedges are based on the same line segment regardless of orientation
 	 */
-	bool equalsNonOriented(const QuadEdge &qe) const {
-		if (equalsOriented(qe))
-			return true;
-		if (equalsOriented(qe.sym()))
-			return true;
-		return false;
-	}
+	bool equalsNonOriented(const QuadEdge &qe) const;
 
 	/**
 	 * Tests if this quadedge and another have the same line segment geometry
@@ -438,12 +347,7 @@ public:
 	 * @param qe a quadege
 	 * @return true if the quadedges are based on the same line segment
 	 */
-	bool equalsOriented(const QuadEdge &qe) const {
-		if (orig().getCoordinate().equals2D(qe.orig().getCoordinate())
-				&& dest().getCoordinate().equals2D(qe.dest().getCoordinate()))
-			return true;
-		return false;
-	}
+	bool equalsOriented(const QuadEdge &qe) const;
 
 	/**
 	 * Creates a {@link LineSegment} representing the
@@ -451,11 +355,7 @@ public:
 	 * 
 	 * @return a LineSegment
 	 */
-	std::auto_ptr<LineSegment> toLineSegment() const
-	{
-		return std::auto_ptr<LineSegment>(
-				new LineSegment(vertex.getCoordinate(), dest().getCoordinate()));
-	}
+	std::auto_ptr<LineSegment> toLineSegment() const;
 };
 
 } //namespace geos.triangulate.quadedge

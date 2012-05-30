@@ -37,11 +37,15 @@ GeometryCollection* QuadEdgeSubdivision::getTriangles(
 		CoordinateSequence *coordSeq = *it;
 		Polygon *tri = geomFact.createPolygon(
 				geomFact.createLinearRing(coordSeq), NULL);
-		tris.push_back(dynamic_cast<Geometry*>(tri));
+		tris.push_back(static_cast<Geometry*>(tri));
 	}
 	GeometryCollection* ret =  geomFact.createGeometryCollection(tris);
-	//TODO: BLC: XXX don't leak memory!
+
+	//release memory
+	for(std::vector<Geometry*>::iterator it=tris.begin(); it!=tris.end(); ++it)
+		delete *it;
 	tris.clear();
+
 	return ret;
 }
 

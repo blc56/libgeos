@@ -46,9 +46,9 @@ namespace tut
 		Vertex v3(1, 0);
 		Vertex v4(1, 1);
 
-		QuadEdge *q0;
-		QuadEdge *r0;
-		QuadEdge *s0;
+		std::auto_ptr<QuadEdge> q0;
+		std::auto_ptr<QuadEdge> r0;
+		std::auto_ptr<QuadEdge> s0;
 
 		q0 = QuadEdge::makeEdge(v1, v2);
 		r0 = QuadEdge::makeEdge(v3, v4);
@@ -59,15 +59,12 @@ namespace tut
 		ensure(s0->orig().equals(q0->dest()));
 		ensure(s0->dest().equals(r0->orig()));
 		//q0, r0, and s0 should have the same left face
-		ensure(&q0->lNext() == s0);
-		ensure(&s0->lNext() == r0);
+		ensure(&q0->lNext() == s0.get());
+		ensure(&s0->lNext() == r0.get());
 
 		q0->free();
-		delete q0; 
 		r0->free();
-		delete r0; 
 		s0->free();
-		delete s0; 
 	}
 
 	// 2 - QuadEdge::connect(), causing a loop
@@ -81,9 +78,9 @@ namespace tut
 		Vertex v3(1, 0);
 		Vertex v4(1, 1);
 
-		QuadEdge *q0;
-		QuadEdge *r0;
-		QuadEdge *s0;
+		std::auto_ptr<QuadEdge> q0;
+		std::auto_ptr<QuadEdge> r0;
+		std::auto_ptr<QuadEdge> s0;
 
 		q0 = QuadEdge::makeEdge(v1, v2);
 		r0 = QuadEdge::makeEdge(v2, v3);
@@ -94,15 +91,12 @@ namespace tut
 		ensure(s0->orig().equals(q0->dest()));
 		ensure(s0->dest().equals(r0->orig()));
 		//q0, r0, and s0 should have the same left face
-		ensure(&q0->lNext() == s0);
-		ensure(&s0->lNext() == r0);
+		ensure(&q0->lNext() == s0.get());
+		ensure(&s0->lNext() == r0.get());
 
 		q0->free();
-		delete q0; 
 		r0->free();
-		delete r0; 
 		s0->free();
-		delete s0; 
 	}
 
 	// 3 - QuadEdge::swap()
@@ -116,11 +110,11 @@ namespace tut
 		Vertex v3(1, 0);
 		Vertex v4(1, 1);
 
-		QuadEdge *q0;
-		QuadEdge *r0;
-		QuadEdge *s0;
-		QuadEdge *t0;
-		QuadEdge *u0;
+		std::auto_ptr<QuadEdge> q0;
+		std::auto_ptr<QuadEdge> r0;
+		std::auto_ptr<QuadEdge> s0;
+		std::auto_ptr<QuadEdge> t0;
+		std::auto_ptr<QuadEdge> u0;
 
 		//make a quadilateral
 		q0 = QuadEdge::makeEdge(v1, v2);
@@ -167,15 +161,10 @@ namespace tut
 		ensure(u0->orig().equals(q0->dest()));
 
 		q0->free();
-		delete q0;
 		r0->free();
-		delete r0;
 		s0->free();
-		delete s0;
 		t0->free();
-		delete t0;
 		u0->free();
-		delete u0;
 	}
 } // namespace tut
 
