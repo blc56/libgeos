@@ -23,7 +23,6 @@
 #include <geos/triangulate/quadedge/QuadEdgeSubdivision.h>
 #include <geos/triangulate/quadedge/Vertex.h>
 
-
 using namespace geos::triangulate;
 using namespace geos::triangulate::quadedge;
 
@@ -124,9 +123,9 @@ public:
 		// Examine suspect edges to ensure that the Delaunay condition
 		// is satisfied.
 		do {
-			QuadEdge& t = e->oPrev();
-			if (t.dest().rightOf(*e) &&
-					v.isInCircle(e->orig(), t.dest(), e->dest())) {
+			QuadEdge* t = &e->oPrev();
+			if (t->dest().rightOf(*e) &&
+					v.isInCircle(e->orig(), t->dest(), e->dest())) {
 				QuadEdge::swap(*e);
 				e = &e->oPrev();
 			} else if (&e->oNext() == startEdge) {

@@ -32,6 +32,8 @@
 #include <geos/geom/CoordinateArraySequenceFactory.h>
 #include <geos/geom/GeometryCollection.h>
 #include <geos/geom/GeometryFactory.h>
+#include <geos/geom/LineString.h>
+#include <geos/geom/MultiLineString.h>
 #include <geos/util/IllegalArgumentException.h>
 #include <geos/triangulate/quadedge/QuadEdge.h>
 #include <geos/triangulate/quadedge/QuadEdgeLocator.h>
@@ -96,8 +98,6 @@ public:
 		}
 	}
 private:
-	// used for edge extraction to ensure edge uniqueness
-	int visitedKey;
 	QuadEdgeList quadEdges;
 	QuadEdgeList removedEdges;
 	QuadEdge* startingEdges[3];
@@ -119,7 +119,7 @@ public:
 	 *          the tolerance value for determining if two sites are equal
 	 */
 	QuadEdgeSubdivision(const geom::Envelope &env, double tolerance) :
-			visitedKey(0), tolerance(tolerance),
+			tolerance(tolerance),
 			locator(new LastFoundQuadEdgeLocator(this)) {
 
 		edgeCoincidenceTolerance = tolerance / EDGE_COINCIDENCE_TOL_FACTOR;
@@ -586,39 +586,43 @@ public:
 
 	/**
 	 * Gets all primary quadedges in the subdivision. 
-   * A primary edge is a {@link QuadEdge}
+	 * A primary edge is a {@link QuadEdge}
 	 * which occupies the 0'th position in its array of associated quadedges. 
 	 * These provide the unique geometric edges of the triangulation.
 	 * 
 	 * @param includeFrame true if the frame edges are to be included
-	 * @return a List of QuadEdges
+	 * @return a List of QuadEdges. The caller takes ownership of the returned QuadEdgeList but not the
+	 * items it contains.
 	 */
-	//public List getPrimaryEdges(boolean includeFrame) {
-		//visitedKey++;
+	QuadEdgeList* getPrimaryEdges(bool includeFrame)
+	{
 
-		//List edges = new ArrayList();
-		//Stack edgeStack = new Stack();
-		//edgeStack.push(startingEdge);
-		
-		//Set visitedEdges = new HashSet();
+		QuadEdgeList *edges = new QuadEdgeList();
+		QuadEdgeStack edgeStack;
+		QuadEdgeSet visitedEdges;
 
-		//while (!edgeStack.empty()) {
-			//QuadEdge edge = (QuadEdge) edgeStack.pop();
-			//if (! visitedEdges.contains(edge)) {
-				//QuadEdge priQE = edge.getPrimary();
+		edgeStack.push(startingEdges[0]);
 
-				//if (includeFrame || ! isFrameEdge(priQE))
-					//edges.add(priQE);
+		while (!edgeStack.empty())
+		{
+			QuadEdge *edge = edgeStack.top();
+			edgeStack.pop();
+			if (visitedEdges.find(edge) == visitedEdges.end())
+			{
+				QuadEdge* priQE = (QuadEdge*)&edge->getPrimary();
 
-				//edgeStack.push(edge.oNext());
-				//edgeStack.push(edge.sym().oNext());
+				if (includeFrame || ! isFrameEdge(*priQE))
+					edges->push_back(priQE);
+
+				edgeStack.push(&edge->oNext());
+				edgeStack.push(&edge->sym().oNext());
 				
-				//visitedEdges.add(edge);
-				//visitedEdges.add(edge.sym());
-			//}
-		//}
-		//return edges;
-	//}
+				visitedEdges.insert(edge);
+				visitedEdges.insert(&edge->sym());
+			}
+		}
+		return edges;
+	}
   
   /**
    * A TriangleVisitor which computes and sets the 
@@ -655,7 +659,6 @@ public:
 
 	void visitTriangles(TriangleVisitor *triVisitor,
 			bool includeFrame) {
-		visitedKey++;
 
 		QuadEdgeStack edgeStack;
 		edgeStack.push(startingEdges[0]);
@@ -681,7 +684,7 @@ private:
 
 	/**
 	 * The quadedges forming a single triangle.
-     * Only one visitor is allowed to be active at a
+	 * Only one visitor is allowed to be active at a
 	 * time, so this is safe.
 	 */
 	QuadEdge* triEdges[3];
@@ -823,17 +826,33 @@ public:
 	 * @param geomFact the GeometryFactory to use
 	 * @return a MultiLineString
 	 */
-	//public Geometry getEdges(GeometryFactory geomFact) {
-		//List quadEdges = getPrimaryEdges(false);
-		//LineString[] edges = new LineString[quadEdges.size()];
-		//int i = 0;
-		//for (Iterator it = quadEdges.iterator(); it.hasNext();) {
-			//QuadEdge qe = (QuadEdge) it.next();
-			//edges[i++] = geomFact.createLineString(new Coordinate[] {
-					//qe.orig().getCoordinate(), qe.dest().getCoordinate() });
-		//}
-		//return geomFact.createMultiLineString(edges);
-	//}
+	geom::MultiLineString* getEdges(const geom::GeometryFactory& geomFact)
+	{
+		QuadEdgeList *quadEdges = getPrimaryEdges(false);
+		std::vector<Geometry *> edges(quadEdges->size());
+		CoordinateArraySequenceFactory coordSeqFact;
+		int i = 0;
+		for (QuadEdgeList::iterator it = quadEdges->begin(); it != quadEdges->end(); ++it)
+		{
+			QuadEdge *qe = *it;
+			CoordinateSequence *coordSeq = coordSeqFact.create((std::vector<geom::Coordinate>*)NULL, 2);;
+
+			coordSeq->add(qe->orig().getCoordinate());
+			coordSeq->add(qe->dest().getCoordinate());
+
+			edges[i++] = geomFact.createLineString(*coordSeq);
+
+			delete coordSeq;
+		}
+		delete quadEdges;
+
+		geom::MultiLineString* result = geomFact.createMultiLineString(edges);
+
+		for(std::vector<Geometry*>::iterator it=edges.begin(); it!=edges.end(); ++it)
+			delete *it;
+
+		return result;
+	}
 
 	/**
 	 * Gets the geometry for the triangles in a triangulated subdivision as a {@link GeometryCollection}
