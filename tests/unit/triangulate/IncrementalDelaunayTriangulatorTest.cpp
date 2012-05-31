@@ -58,7 +58,7 @@ namespace tut
 		results->normalize();
 		expected->normalize();
 			
-		ensure(results->equalsExact(expected));
+		ensure(results->equalsExact(expected, 1e-7));
 
 		delete sites;
 		delete expected;
