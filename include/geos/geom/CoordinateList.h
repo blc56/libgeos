@@ -140,15 +140,6 @@ public:
 	{
 		return coords.insert(pos, c);
 	}
-	/**
-	 * Ensure this coordList is a ring, by adding the start point if necessary
-	 **/
-	void closeRing()
-	{
-		if (size() > 0)
-			insert(end(), *coords.begin(), false);
-	}
-
 
 	iterator erase(iterator pos)
 	{
