@@ -26,7 +26,9 @@
 namespace geos {
 namespace triangulate { //geos.triangulate
 
-class quadedge::QuadEdge;
+namespace quadedge {
+	class QuadEdge;
+}
 
 /**
  * Computes a Delauanay Triangulation of a set of {@link Vertex}es, using an

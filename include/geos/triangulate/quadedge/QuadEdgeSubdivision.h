@@ -30,13 +30,18 @@
 #include <geos/triangulate/quadedge/QuadEdgeLocator.h>
 
 namespace geos {
+
+namespace geom {
+
+	class CoordinateSequence;
+	class GeometryCollection;
+	class GeometryFactory;
+	class Coordinate;
+}
+
 namespace triangulate { //geos.triangulate
 namespace quadedge { //geos.triangulate.quadedge
 
-class geom::CoordinateSequence;
-class geom::GeometryCollection;
-class geom::GeometryFactory;
-class geom::Coordinate;
 class QuadEdge;
 class TriangleVisitor;
 
