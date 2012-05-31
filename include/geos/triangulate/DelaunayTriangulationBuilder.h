@@ -19,19 +19,14 @@
 #ifndef GEOS_TRIANGULATE_DELAUNAYTRIANGULATIONBUILDER_H
 #define GEOS_TRIANGULATE_DELAUNAYTRIANGULATIONBUILDER_H
 
-#include <geos/triangulate/quadedge/QuadEdgeSubdivision.h>
 #include <geos/triangulate/IncrementalDelaunayTriangulator.h>
-#include <geos/geom/CoordinateSequence.h>
-#include <geos/geom/Coordinate.h>
-#include <geos/geom/GeometryFactory.h>
 
-#include <algorithm>
 
 namespace geos {
 namespace triangulate { //geos.triangulate
 namespace quadedge { //geos.triangulate.quadedge
 
-using namespace geos::geom;
+class QuadEdgeSubdivision;
 
 /**
  * A utility class which creates Delaunay Trianglulations
@@ -50,38 +45,16 @@ public:
 	 * @param geom the geometry to extract from
 	 * @return a List of the unique Coordinates. Caller takes ownership of the returned object.
 	 */
-	static geom::CoordinateSequence* extractUniqueCoordinates(const Geometry& geom)
-	{
-		geom::CoordinateSequence *coords = geom.getCoordinates();
-		unique(*coords);
-		return coords;
-	}
+	static geom::CoordinateSequence* extractUniqueCoordinates(const geom::Geometry& geom);
 	
-	static void unique(CoordinateSequence& coords)
-	{
-		std::vector<geos::geom::Coordinate> coordVector;
-		coords.toVector(coordVector);
-		std::sort(coordVector.begin(), coordVector.end(), geos::geom::CoordinateLessThen());
-		coords.setPoints(coordVector);
-		coords.removeRepeatedPoints();
-	}
+	static void unique(geom::CoordinateSequence& coords);
 	
 	/**
 	 * Converts all {@link Coordinate}s in a collection to {@link Vertex}es.
 	 * @param coords the coordinates to convert
 	 * @return a List of Vertex objects. Call takes ownership of returned object.
 	 */
-	static IncrementalDelaunayTriangulator::VertexList* toVertices(const CoordinateSequence &coords)
-	{
-		IncrementalDelaunayTriangulator::VertexList* vertexList =
-			new IncrementalDelaunayTriangulator::VertexList();
-
-		for(size_t iter=0; iter < coords.size(); ++iter)
-		{
-			vertexList->push_back(Vertex(coords.getAt(iter)));
-		}
-		return vertexList;
-	}
+	static IncrementalDelaunayTriangulator::VertexList* toVertices(const geom::CoordinateSequence &coords);
 	
 private:
 	geom::CoordinateSequence* siteCoords;
@@ -93,17 +66,9 @@ public:
 	 * Creates a new triangulation builder.
 	 *
 	 */
-	DelaunayTriangulationBuilder() : siteCoords(NULL), tolerance(0.0), subdiv(NULL)
-	{
-	}
+	DelaunayTriangulationBuilder();
 
-	~DelaunayTriangulationBuilder() 
-	{
-		if(siteCoords)
-			delete siteCoords;
-		if(subdiv)
-			delete subdiv;
-	}
+	~DelaunayTriangulationBuilder();
 	
 	/**
 	 * Sets the sites (vertices) which will be triangulated.
@@ -111,13 +76,7 @@ public:
 	 * 
 	 * @param geom the geometry from which the sites will be extracted.
 	 */
-	void setSites(const Geometry& geom)
-	{
-		if(siteCoords)
-			delete siteCoords;
-		// remove any duplicate points (they will cause the triangulation to fail)
-		siteCoords = extractUniqueCoordinates(geom);
-	}
+	void setSites(const geom::Geometry& geom);
 	
 	/**
 	 * Sets the sites (vertices) which will be triangulated
@@ -125,14 +84,7 @@ public:
 	 * 
 	 * @param geom a CoordinateSequence.
 	 */
-	void setSites(const CoordinateSequence& coords)
-	{
-		if(siteCoords)
-			delete siteCoords;
-		siteCoords = coords.clone();
-		// remove any duplicate points (they will cause the triangulation to fail)
-		unique(*siteCoords);
-	}
+	void setSites(const geom::CoordinateSequence& coords);
 	
 	/**
 	 * Sets the snapping tolerance which will be used
@@ -141,25 +93,13 @@ public:
 	 * 
 	 * @param tolerance the tolerance distance to use
 	 */
-	void setTolerance(double tolerance)
+	inline void setTolerance(double tolerance)
 	{
 		this->tolerance = tolerance;
 	}
 	
 private:
-	void create()
-	{
-		if(subdiv != NULL || siteCoords == NULL)
-			return;
-		
-		Envelope siteEnv;
-		siteCoords ->expandEnvelope(siteEnv);
-		IncrementalDelaunayTriangulator::VertexList* vertices = toVertices(*siteCoords);
-		subdiv = new QuadEdgeSubdivision(siteEnv, tolerance);
-		IncrementalDelaunayTriangulator triangulator = IncrementalDelaunayTriangulator(subdiv);
-		triangulator.insertSites(*vertices);
-		delete vertices;
-	}
+	void create();
 	
 public:
 	/**
@@ -167,11 +107,7 @@ public:
 	 * 
 	 * @return the subdivision containing the triangulation
 	 */
-	QuadEdgeSubdivision& getSubdivision()
-	{
-		create();
-		return *subdiv;
-	}
+	QuadEdgeSubdivision& getSubdivision();
 	
 	/**
 	 * Gets the edges of the computed triangulation as a {@link MultiLineString}.
@@ -179,11 +115,7 @@ public:
 	 * @param geomFact the geometry factory to use to create the output
 	 * @return the edges of the triangulation. The caller takes ownership of the returned object.
 	 */
-	std::auto_ptr<geom::MultiLineString> getEdges(GeometryFactory geomFact)
-	{
-		create();
-		return subdiv->getEdges(geomFact);
-	}
+	std::auto_ptr<geom::MultiLineString> getEdges(geom::GeometryFactory &geomFact);
 	
 	/**
 	 * Gets the faces of the computed triangulation as a {@link GeometryCollection} 
@@ -192,11 +124,8 @@ public:
 	 * @param geomFact the geometry factory to use to create the output
 	 * @return the faces of the triangulation. The caller takes ownership of the returned object.
 	 */
-	std::auto_ptr<geom::GeometryCollection> getTriangles(geom::GeometryFactory& geomFact)
-	{
-		create();
-		return subdiv->getTriangles(geomFact);
-	}
+	std::auto_ptr<geom::GeometryCollection> getTriangles(geom::GeometryFactory& geomFact);
+
 };
 
 }//namespace geos.triangulate.quadedge
