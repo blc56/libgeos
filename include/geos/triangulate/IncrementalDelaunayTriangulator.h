@@ -19,8 +19,9 @@
 #ifndef GEOS_TRIANGULATE_INCREMENTALDELAUNAYTRIANGULATOR_H
 #define GEOS_TRIANGULATE_INCREMENTALDELAUNAYTRIANGULATOR_H
 
+#include <list>
+
 #include <geos/triangulate/quadedge/Vertex.h>
-#include <geos/triangulate/quadedge/QuadEdgeSubdivision.h>
 
 
 namespace geos {
@@ -28,6 +29,7 @@ namespace triangulate { //geos.triangulate
 
 namespace quadedge {
 	class QuadEdge;
+	class QuadEdgeSubdivision;
 }
 
 /**

@@ -21,6 +21,7 @@
 
 #include <geos/geom/Polygon.h>
 #include <geos/geom/LineSegment.h>
+#include <geos/geom/LineString.h>
 #include <geos/geom/CoordinateSequence.h>
 #include <geos/geom/CoordinateArraySequence.h>
 #include <geos/geom/CoordinateArraySequenceFactory.h>
@@ -289,7 +290,7 @@ bool QuadEdgeSubdivision::isVertexOfEdge(const QuadEdge &e, const Vertex &v) con
 	return false;
 }
 
-QuadEdgeSubdivision::QuadEdgeList* QuadEdgeSubdivision::getPrimaryEdges(bool includeFrame)
+std::auto_ptr<QuadEdgeSubdivision::QuadEdgeList> QuadEdgeSubdivision::getPrimaryEdges(bool includeFrame)
 {
 	QuadEdgeList *edges = new QuadEdgeList();
 	QuadEdgeStack edgeStack;
@@ -315,7 +316,7 @@ QuadEdgeSubdivision::QuadEdgeList* QuadEdgeSubdivision::getPrimaryEdges(bool inc
 			visitedEdges.insert(&edge->sym());
 		}
 	}
-	return edges;
+	return std::auto_ptr<QuadEdgeList>(edges);
 }
 
 QuadEdge** QuadEdgeSubdivision::fetchTriangleToVisit(QuadEdge *edge,
@@ -399,7 +400,7 @@ void QuadEdgeSubdivision::visitTriangles(TriangleVisitor *triVisitor, bool inclu
 
 std::auto_ptr<geom::MultiLineString> QuadEdgeSubdivision::getEdges(const geom::GeometryFactory& geomFact)
 {
-	QuadEdgeList *quadEdges = getPrimaryEdges(false);
+	std::auto_ptr<QuadEdgeList> quadEdges(getPrimaryEdges(false));
 	std::vector<Geometry *> edges(quadEdges->size());
 	CoordinateArraySequenceFactory coordSeqFact;
 	int i = 0;
@@ -411,11 +412,10 @@ std::auto_ptr<geom::MultiLineString> QuadEdgeSubdivision::getEdges(const geom::G
 		coordSeq->add(qe->orig().getCoordinate());
 		coordSeq->add(qe->dest().getCoordinate());
 
-		edges[i++] = geomFact.createLineString(*coordSeq);
+		edges[i++] = static_cast<Geometry*>(geomFact.createLineString(*coordSeq));
 
 		delete coordSeq;
 	}
-	delete quadEdges;
 
 	geom::MultiLineString* result = geomFact.createMultiLineString(edges);
 

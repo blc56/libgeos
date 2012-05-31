@@ -23,6 +23,14 @@
 
 
 namespace geos {
+namespace geom{
+	class CoordinateSequence;
+	class Geometry;
+	class MultiLineString;
+	class GeometryCollection;
+	class GeometryFactory;
+}
+
 namespace triangulate { //geos.triangulate
 namespace quadedge { //geos.triangulate.quadedge
 

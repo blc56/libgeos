@@ -25,9 +25,9 @@
 #include <set>
 
 #include <geos/geom/Envelope.h>
-#include <geos/geom/LineString.h>
 #include <geos/geom/MultiLineString.h>
 #include <geos/triangulate/quadedge/QuadEdgeLocator.h>
+#include <geos/triangulate/quadedge/Vertex.h>
 
 namespace geos {
 
@@ -328,7 +328,7 @@ public:
 	 * @return a List of QuadEdges. The caller takes ownership of the returned QuadEdgeList but not the
 	 * items it contains.
 	 */
-	QuadEdgeList* getPrimaryEdges(bool includeFrame);
+	std::auto_ptr<QuadEdgeList> getPrimaryEdges(bool includeFrame);
   
 	/*****************************************************************************
 	 * Visitors

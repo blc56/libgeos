@@ -19,12 +19,12 @@
 #ifndef GEOS_TRIANGULATE_QUADEDGE_QUADEDGELOCATOR_H
 #define GEOS_TRIANGULATE_QUADEDGE_QUADEDGELOCATOR_H
 
-#include <geos/triangulate/quadedge/Vertex.h>
-#include <geos/triangulate/quadedge/QuadEdge.h>
-
 namespace geos {
 namespace triangulate { //geos.triangulate
 namespace quadedge { //geos.triangulate.quadedge
+
+class Vertex;
+class QuadEdge;
 
 /**
  * An interface for classes which locate an edge in a {@link QuadEdgeSubdivision}

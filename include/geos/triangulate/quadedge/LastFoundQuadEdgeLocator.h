@@ -55,6 +55,7 @@ public:
 	/**
 	 * Locates an edge e, such that either v is on e, or e is an edge of a triangle containing v.
 	 * The search starts from the last located edge amd proceeds on the general direction of v.
+	 * @return The caller _does not_ take ownership of the returned object.
 	 */
 	virtual QuadEdge* locate(const Vertex &v);
 }; 

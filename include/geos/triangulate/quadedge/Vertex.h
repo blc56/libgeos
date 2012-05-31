@@ -28,11 +28,11 @@
 
 //fwd declarations
 namespace geos {
-	namespace triangulate {
-		namespace quadedge {
-			class QuadEdge;
-		}
-	}
+namespace triangulate {
+namespace quadedge {
+	class QuadEdge;
+}
+}
 }
 
 namespace geos {

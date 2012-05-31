@@ -21,12 +21,6 @@
 
 #include <memory>
 
-//TODO: XXX: FIXME: BLC: QuadEdge Memory managment and valgrind!!
-//TODO: XXX: FIXME: BLC: Return auto_ptr's when appropriate
-//TODO: XXX: FIXME: BLC: Move function defs to .cpp files!!
-//TODO: XXX: FIXME: BLC: Don't put 'using' in header files!!
-//TODO: XXX: FIXME: BLC: Author check!!
-
 #include <geos/triangulate/quadedge/Vertex.h>
 #include <geos/geom/LineSegment.h>
 
