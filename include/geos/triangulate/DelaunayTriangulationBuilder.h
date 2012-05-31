@@ -31,6 +31,8 @@ namespace geos {
 namespace triangulate { //geos.triangulate
 namespace quadedge { //geos.triangulate.quadedge
 
+using namespace geos::geom;
+
 /**
  * A utility class which creates Delaunay Trianglulations
  * from collections of points and extract the resulting 

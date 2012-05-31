@@ -36,6 +36,7 @@ namespace quadedge { //geos.triangulate.quadedge
 class geom::CoordinateSequence;
 class geom::GeometryCollection;
 class geom::GeometryFactory;
+class geom::Coordinate;
 class QuadEdge;
 class TriangleVisitor;
 
@@ -226,7 +227,7 @@ public:
 	 * @return null if no such triangle exists. The returned pointer should not be
 	 * freed be the caller.
 	 */
-	inline QuadEdge* locate(const Coordinate &p) {
+	inline QuadEdge* locate(const geom::Coordinate &p) {
 		return locator->locate(Vertex(p));
 	}
 
@@ -240,7 +241,7 @@ public:
 	 * @return null if no such edge exists
 	 * @return the caller _should not_ free the returned pointer
 	 */
-	QuadEdge* locate(const Coordinate &p0, const Coordinate &p1);
+	QuadEdge* locate(const geom::Coordinate &p0, const geom::Coordinate &p1);
 
 	/**
 	 * Inserts a new site into the Subdivision, connecting it to the vertices of
@@ -300,7 +301,7 @@ public:
 	 *          a point
 	 * @return true if the vertex lies on the edge
 	 */
-	bool isOnEdge(const QuadEdge &e, const Coordinate &p) const;
+	bool isOnEdge(const QuadEdge &e, const geom::Coordinate &p) const;
 
 	/**
 	 * Tests whether a {@link Vertex} is the start or end vertex of a
@@ -385,7 +386,7 @@ public:
 	 * @param geomFact the GeometryFactory to use
 	 * @return a GeometryCollection of triangular Polygons. The caller takes ownership of the returned object.
 	 */
-	std::auto_ptr<geom::GeometryCollection> getTriangles(const GeometryFactory &geomFact);
+	std::auto_ptr<geom::GeometryCollection> getTriangles(const geom::GeometryFactory &geomFact);
 
 };
 

@@ -355,7 +355,7 @@ public:
 	 * 
 	 * @return a LineSegment
 	 */
-	std::auto_ptr<LineSegment> toLineSegment() const;
+	std::auto_ptr<geom::LineSegment> toLineSegment() const;
 };
 
 } //namespace geos.triangulate.quadedge

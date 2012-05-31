@@ -22,6 +22,8 @@ namespace geos {
 namespace triangulate { //geos.triangulate
 namespace quadedge { //geos.triangulate.quadedge
 
+using namespace geos::geom;
+
 std::auto_ptr<QuadEdge> QuadEdge::makeEdge(const Vertex &o, const Vertex &d)
 {
 	QuadEdge *q0 = new QuadEdge();
