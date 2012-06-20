@@ -3,7 +3,7 @@
  * GEOS - Geometry Engine Open Source
  * http://geos.osgeo.org
  *
- * Copyright (C) 2006 Refractions Research Inc.
+ * Copyright (C) 2012 Excensus LLC.
  *
  * This is free software; you can redistribute and/or modify it under
  * the terms of the GNU Lesser General Licence as published
@@ -12,7 +12,7 @@
  *
  **********************************************************************
  *
- * Last port: triangulate/quadedge/Vertex.java rev. 1.12
+ * Last port: triangulate/quadedge/TrianglePredicate.java rev. 524
  *
  **********************************************************************/
 
