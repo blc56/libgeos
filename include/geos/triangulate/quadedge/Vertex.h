@@ -12,7 +12,7 @@
  *
  **********************************************************************
  *
- * Last port: triangulate/quadedge/Vertex.java rev. 524
+ * Last port: triangulate/quadedge/Vertex.java rev. r524
  *
  **********************************************************************/
 

@@ -12,7 +12,7 @@
  *
  **********************************************************************
  *
- * Last port: triangulate/quadedge/QuadEdgeSubdivision.java rev. 524
+ * Last port: triangulate/quadedge/QuadEdgeSubdivision.java rev. r524
  *
  **********************************************************************/
 #include <geos/triangulate/quadedge/QuadEdgeSubdivision.h>

@@ -12,7 +12,7 @@
  *
  **********************************************************************
  *
- * Last port: triangulate/IncrementalDelaunayTriangulator.java rev. 524
+ * Last port: triangulate/IncrementalDelaunayTriangulator.java rev. r524
  *
  **********************************************************************/
 

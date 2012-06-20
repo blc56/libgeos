@@ -12,7 +12,7 @@
  *
  **********************************************************************
  *
- * Last port: triangulate/quadedge/LocateFailureException.java rev. 524
+ * Last port: triangulate/quadedge/LocateFailureException.java rev. r524
  *
  **********************************************************************/
 

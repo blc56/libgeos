@@ -12,7 +12,7 @@
  *
  **********************************************************************
  *
- * Last port: triangulate/quadedge/LastFoundQuadEdgeLocator.java rev. 524
+ * Last port: triangulate/quadedge/LastFoundQuadEdgeLocator.java rev. r524
  *
  **********************************************************************/
 
