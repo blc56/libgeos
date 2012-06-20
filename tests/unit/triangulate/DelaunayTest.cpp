@@ -37,7 +37,7 @@ namespace tut
 	typedef test_group<test_incdelaunaytri_data> group;
 	typedef group::object object;
 
-	group test_incdelaunaytri_group("geos::triangulate::IncrementalDelaunayTriangulator");
+	group test_incdelaunaytri_group("geos::triangulate::Delaunay");
 
 	//helper function for funning triangulation
 	void runDelaunay(const char *sitesWkt, bool computeTriangles, const char *expectedWkt)
